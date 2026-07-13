@@ -30,14 +30,16 @@ public class Event {
     private String title;
 
     @Column(columnDefinition = "TEXT")
+    @NotBlank
     private String description;
 
     @Size(max = 150)
+    @NotBlank
     private String location;
 
     @NotNull
     @Column(nullable = false)
-    private LocalDateTime eventDatTime;
+    private LocalDateTime eventDateTime;
 
     @Min(1)
     private Integer capacity;

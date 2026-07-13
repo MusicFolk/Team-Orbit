@@ -43,6 +43,12 @@ public class User {
     @Builder.Default
     private Role role = Role.USER;
 
+    // disable account w/o deleting data
+    // for the status endpoint
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
