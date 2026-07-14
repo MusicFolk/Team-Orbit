@@ -7,6 +7,5 @@ import lombok.Data;
 public class AttendeeResponse {
     private Long userId;
     private String fullName;
-    private String email;
     private RsvpStatus status;
 }
