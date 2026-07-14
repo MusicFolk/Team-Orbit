@@ -35,6 +35,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    // should be optional 
     @Size(max = 100)
     private String fullName;
 
