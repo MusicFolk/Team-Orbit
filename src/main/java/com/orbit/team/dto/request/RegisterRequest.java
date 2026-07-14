@@ -20,6 +20,6 @@ public class RegisterRequest {
     @Email
     private String email;
     @NotBlank
-    @Length(min = 6)
+    @Size(min = 6)
     private String password;
 }

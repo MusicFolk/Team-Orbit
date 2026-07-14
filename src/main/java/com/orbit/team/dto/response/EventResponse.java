@@ -13,5 +13,5 @@ public class EventResponse {
     private LocalDateTime eventDateTime;
     private Integer capacity;
     private Long categoryId;
-    private String organizer;
+    private String userId;
 }
