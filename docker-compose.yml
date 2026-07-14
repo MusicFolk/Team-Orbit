@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16
+    container_name: orbit-db
+    environment:
+      POSTGRES_DB: orbit
+      POSTGRES_USER: orbit_user
+      POSTGRES_PASSWORD: orbit_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - orbit-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orbit_user -d orbit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  app:
+    build: .
+    container_name: orbit-app
+    depends_on:
+      db:
+          condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/orbit
+      SPRING_DATASOURCE_USERNAME: orbit_user
+      SPRING_DATASOURCE_PASSWORD: orbit_pass
+
+volumes:
+  orbit-db-data:
