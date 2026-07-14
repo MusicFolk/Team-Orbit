@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Orbit — Browse Events</title>
+    <style>
+        body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:#f4f6fb; color:#2c2c34; }
+        .wrap { max-width:1000px; margin:0 auto; padding:32px 24px; }
+        h1 { color:#1E2761; font-size:24px; margin:0 0 20px 0; }
+        .filter-bar { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; background:#fff; border:1px solid #e1e4ec; border-radius:10px; padding:16px; margin-bottom:24px; }
+        .filter-field { flex:1; min-width:140px; }
+        .filter-field label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; }
+        .filter-field input, .filter-field select { width:100%; padding:10px 12px; border:1px solid #e1e4ec; border-radius:6px; font-size:14px; box-sizing:border-box; }
+        .filter-bar button { height:40px; padding:0 18px; background:#1E2761; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer; }
+        .event-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:18px; }
+        .event-card { background:#fff; border:1px solid #e1e4ec; border-radius:10px; overflow:hidden; text-decoration:none; color:inherit; display:block; }
+        .event-thumb { height:80px; background:linear-gradient(135deg,#1E2761,#3b4694); }
+        .event-card-body { padding:14px 16px; }
+        .tag { display:inline-block; font-size:11px; font-weight:600; color:#1E2761; background:#eef3fd; border:1px solid #CADCFC; border-radius:20px; padding:2px 10px; margin-bottom:8px; }
+        .event-card-title { font-size:15px; font-weight:700; margin-bottom:4px; }
+        .event-card-meta { font-size:12.5px; color:#6b6f80; line-height:1.6; }
+        .empty { color:#6b6f80; font-size:14px; padding:40px 0; text-align:center; }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <h1>Browse Events</h1>
+
+    <!-- Plain GET form: filters submit as query params (?city=&category=&date=&keyword=) -->
+    <form class="filter-bar" th:action="@{/events}" method="get">
+        <div class="filter-field">
+            <label for="keyword">Keyword</label>
+            <input type="text" id="keyword" name="keyword" th:value="${param.keyword}" placeholder="Search events...">
+        </div>
+        <div class="filter-field">
+            <label for="city">City</label>
+            <select id="city" name="city">
+                <option value="">Any city</option>
+                <option th:each="c : ${cities}" th:value="${c}" th:text="${c}"
+                        th:selected="${c == param.city}"></option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+                <option value="">Any category</option>
+                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"
+                        th:selected="${cat == param.category}"></option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" th:value="${param.date}">
+        </div>
+        <button type="submit">Search</button>
+    </form>
+
+    <div class="event-grid" th:if="${not #lists.isEmpty(events)}">
+        <a class="event-card" th:each="event : ${events}" th:href="@{/events/{id}(id=${event.id})}">
+            <div class="event-thumb"></div>
+            <div class="event-card-body">
+                <span class="tag" th:text="${event.category}">Category</span>
+                <div class="event-card-title" th:text="${event.title}">Event Title</div>
+                <div class="event-card-meta">
+                    <span th:text="${event.date} + ' · ' + ${event.time}">Date · Time</span><br>
+                    <span th:text="${event.location}">Location</span>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <p class="empty" th:if="${#lists.isEmpty(events)}">No events match your filters.</p>
+</div>
+
+</body>
+</html>
+
