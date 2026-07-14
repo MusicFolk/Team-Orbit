@@ -26,16 +26,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/signup","/api/login").permitAll()
+                        .requestMatchers("/api/auth/register","/api/auth/login").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/api/login")
-                        .loginProcessingUrl("/api/login")
+                        .loginPage("/api/auth/login")
+                        .loginProcessingUrl("/api/auth/login")
                         .defaultSuccessUrl("/home", true))
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/api/login")
+                        .logoutSuccessUrl("/api/auth/login")
                         .permitAll());
         return httpSecurity.build();
     }
