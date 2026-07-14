@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class EventRequest {
     @NotBlank
     private String title;
-
+    @NotBlank
     private String description;
 
     @NotBlank

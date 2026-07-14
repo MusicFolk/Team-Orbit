@@ -9,5 +9,6 @@ public class CommentResponse {
     private Long commentId;
     private String text;
     private Long userId;
+    private String username;
     private LocalDateTime createdAt;
 }
