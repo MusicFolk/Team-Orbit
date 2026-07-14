@@ -35,7 +35,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @NotBlank
     @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String fullName;
 
     @Enumerated(EnumType.STRING)
