@@ -6,9 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,12 +27,13 @@ public class Event {
     @Column(nullable = false, length = 150)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
-    @NotBlank
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Size(max = 150)
+
     @NotBlank
+    @Size(max = 150)
+    @Column(nullable = false,  length = 150)
     private String location;
 
     @NotNull
@@ -42,6 +41,8 @@ public class Event {
     private LocalDateTime eventDateTime;
 
     @Min(1)
+    @NotNull
+    @Column(nullable = false)
     private Integer capacity;
 
     // Linking event to user
