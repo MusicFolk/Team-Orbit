@@ -17,10 +17,6 @@ public class UserSecurity implements UserDetails {
         this.user = user;
     }
 
-    public User getUser() {
-        return user;
-    }
-
     public Long getId() {
         return user.getId();
     }
@@ -55,6 +51,6 @@ public class UserSecurity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.isActive();
     }
 }
