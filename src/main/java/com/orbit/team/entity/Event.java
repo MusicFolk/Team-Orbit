@@ -54,9 +54,9 @@ public class Event {
 
     // Linking each event to one category
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private EventCategory category;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -1,5 +1,6 @@
 package com.orbit.team.dto.request;
 
+import com.orbit.team.entity.EventCategory;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -25,5 +26,5 @@ public class EventRequest {
     private Integer capacity;
 
     @NotNull
-    private Long categoryId;
+    private EventCategory category;
 }

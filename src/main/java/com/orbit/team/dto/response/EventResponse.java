@@ -1,5 +1,6 @@
 package com.orbit.team.dto.response;
 
+import com.orbit.team.entity.EventCategory;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,6 @@ public class EventResponse {
     private String location;
     private LocalDateTime eventDateTime;
     private Integer capacity;
-    private Long categoryId;
+    private EventCategory category;
     private String organizer;
 }

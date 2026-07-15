@@ -1,10 +1,8 @@
 package com.orbit.team.service;
 
 import com.orbit.team.dto.request.EventRequest;
-import com.orbit.team.entity.Category;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.User;
-import com.orbit.team.repository.CategoryRepository;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +15,11 @@ import java.util.List;
 public class EventService {
 
     private final EventRepository eventRepository;
-    private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
     public Event createEvent(EventRequest request, Long userId) {
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
-
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + request.getCategoryId()));
 
         Event event = Event.builder()
                 .title(request.getTitle())
@@ -34,7 +28,7 @@ public class EventService {
                 .eventDateTime(request.getEventDateTime())
                 .capacity(request.getCapacity())
                 .organizer(currentUser)
-                .category(category)
+                .category(request.getCategory())
                 .build();
 
         return eventRepository.save(event);
@@ -52,15 +46,12 @@ public class EventService {
             throw new IllegalArgumentException("Only the organizer can edit this event");
         }
 
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + request.getCategoryId()));
-
         event.setTitle(request.getTitle());
         event.setDescription(request.getDescription());
         event.setLocation(request.getLocation());
         event.setEventDateTime(request.getEventDateTime());
         event.setCapacity(request.getCapacity());
-        event.setCategory(category);
+        event.setCategory(request.getCategory());
 
         return eventRepository.save(event);
     }
