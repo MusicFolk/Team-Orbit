@@ -17,7 +17,7 @@ public class UserService {
 
     private UserResponse userResponse(User user) {
         UserResponse response = new UserResponse();
-        response.setId(user.getId());
+        response.setUserId(user.getId());
         response.setEmail(user.getEmail());
         response.setUsername(user.getUsername());
         response.setFullName(user.getFullName());
