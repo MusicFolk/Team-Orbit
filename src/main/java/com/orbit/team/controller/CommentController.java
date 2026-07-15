@@ -1,0 +1,36 @@
+package com.orbit.team.controller;
+
+import com.orbit.team.dto.request.CommentRequest;
+import com.orbit.team.dto.response.CommentResponse;
+import com.orbit.team.security.UserSecurity;
+import com.orbit.team.service.CommentService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/events/{eventId}/comments")
+@RequiredArgsConstructor
+public class CommentController {
+
+    private final CommentService commentService;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentResponse addComment(
+            @PathVariable Long eventId,
+            @Valid @RequestBody CommentRequest request,
+            @AuthenticationPrincipal UserSecurity userSecurity) {
+
+        return commentService.addComment(eventId, userSecurity.getId(), request);
+    }
+
+    @GetMapping
+    public List<CommentResponse> getComments(@PathVariable Long eventId) {
+        return commentService.getCommentsForEvent(eventId);
+    }
+}
