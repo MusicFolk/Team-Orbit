@@ -18,11 +18,20 @@ public class RsvpController {
 
     private final RsvpService rsvpService;
 
-    @PutMapping("/{id}/rsvp")
-    public AttendeeResponse submitRsvp(@PathVariable Long id,
+    @PostMapping("/{id}/rsvp")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AttendeeResponse createRsvp(@PathVariable Long id,
                                        @Valid @RequestBody RsvpRequest request,
                                        @AuthenticationPrincipal UserSecurity userSecurity) {
-        RSVP rsvp = rsvpService.submitRsvp(userSecurity.getId(), id, request.getStatus());
+        RSVP rsvp = rsvpService.createRsvp(userSecurity.getId(), id, request.getStatus());
+        return toResponse(rsvp);
+    }
+
+    @PutMapping("/{id}/rsvp")
+    public AttendeeResponse updateRsvp(@PathVariable Long id,
+                                       @Valid @RequestBody RsvpRequest request,
+                                       @AuthenticationPrincipal UserSecurity userSecurity) {
+        RSVP rsvp = rsvpService.updateRsvp(userSecurity.getId(), id, request.getStatus());
         return toResponse(rsvp);
     }
 

@@ -20,25 +20,35 @@ public class RsvpService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public RSVP submitRsvp(Long userId, Long eventId, RsvpStatus status) {
+    public RSVP createRsvp(Long userId, Long eventId, RsvpStatus status) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found: " + eventId));
 
-        return rsvpRepository.findByUserAndEvent(user, event)
-                .map(existing -> {
-                    existing.setStatus(status);
-                    return rsvpRepository.save(existing);
-                })
-                .orElseGet(() -> {
-                    RSVP rsvp = RSVP.builder()
-                            .user(user)
-                            .event(event)
-                            .status(status)
-                            .build();
-                    return rsvpRepository.save(rsvp);
-                });
+        if (rsvpRepository.findByUserAndEvent(user, event).isPresent()) {
+            throw new IllegalStateException("RSVP already exists for this event");
+        }
+
+        RSVP rsvp = RSVP.builder()
+                .user(user)
+                .event(event)
+                .status(status)
+                .build();
+        return rsvpRepository.save(rsvp);
+    }
+
+    public RSVP updateRsvp(Long userId, Long eventId, RsvpStatus status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found: " + eventId));
+
+        RSVP rsvp = rsvpRepository.findByUserAndEvent(user, event)
+                .orElseThrow(() -> new IllegalArgumentException("No existing RSVP to update for this event"));
+
+        rsvp.setStatus(status);
+        return rsvpRepository.save(rsvp);
     }
 
     public void cancelRsvp(Long userId, Long eventId) {
