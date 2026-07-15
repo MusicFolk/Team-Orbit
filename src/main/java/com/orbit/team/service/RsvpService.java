@@ -4,6 +4,7 @@ import com.orbit.team.entity.Event;
 import com.orbit.team.entity.RSVP;
 import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.entity.User;
+import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.RsvpRepository;
 import com.orbit.team.repository.UserRepository;
@@ -22,9 +23,9 @@ public class RsvpService {
 
     public RSVP submitRsvp(Long userId, Long eventId, RsvpStatus status) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Event not found: " + eventId));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found: " + eventId));
 
         return rsvpRepository.findByUserAndEvent(user, event)
                 .map(existing -> {
@@ -43,9 +44,9 @@ public class RsvpService {
 
     public void cancelRsvp(Long userId, Long eventId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Event not found: " + eventId));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found: " + eventId));
 
         rsvpRepository.findByUserAndEvent(user, event)
                 .ifPresent(rsvpRepository::delete);
@@ -53,7 +54,7 @@ public class RsvpService {
 
     public List<RSVP> getRsvpsForEvent(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
-            throw new IllegalArgumentException("Event not found: " + eventId);
+            throw new ResourceNotFoundException("Event not found: " + eventId);
         }
         return rsvpRepository.findByEvent_Id(eventId);
     }

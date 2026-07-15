@@ -6,6 +6,8 @@ import com.orbit.team.entity.Comment;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.Role;
 import com.orbit.team.entity.User;
+import com.orbit.team.exception.ResourceNotFoundException;
+import com.orbit.team.exception.UnauthorizedActionException;
 import com.orbit.team.repository.CommentRepository;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.UserRepository;
@@ -25,10 +27,10 @@ public class CommentService {
     public CommentResponse addComment(Long eventId, Long userId, CommentRequest request) {
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Comment comment = Comment.builder()
                 .content(request.getContent())
@@ -44,7 +46,7 @@ public class CommentService {
     public List<CommentResponse> getCommentsForEvent(Long eventId) {
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         return commentRepository.findByEventOrderByCreatedAtAsc(event)
                 .stream()
@@ -55,14 +57,14 @@ public class CommentService {
     public void deleteComment(Long commentId, Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new IllegalArgumentException("Only admins can delete comments");
+            throw new UnauthorizedActionException("Only admins can delete comments");
         }
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
 
         commentRepository.delete(comment);
     }

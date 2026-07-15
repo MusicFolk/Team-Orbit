@@ -3,6 +3,8 @@ package com.orbit.team.service;
 import com.orbit.team.dto.request.EventRequest;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.User;
+import com.orbit.team.exception.ResourceNotFoundException;
+import com.orbit.team.exception.UnauthorizedActionException;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ public class EventService {
 
     public Event createEvent(EventRequest request, Long userId) {
         User currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
 
         Event event = Event.builder()
                 .title(request.getTitle())
@@ -36,14 +38,14 @@ public class EventService {
 
     public Event getEventById(Long id) {
         return eventRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Event not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found: " + id));
     }
 
     public Event updateEvent(Long id, EventRequest request, Long userId) {
         Event event = getEventById(id);
 
         if (!event.getOrganizer().getId().equals(userId)) {
-            throw new IllegalArgumentException("Only the organizer can edit this event");
+            throw new UnauthorizedActionException("Only the organizer can edit this event");
         }
 
         event.setTitle(request.getTitle());
@@ -60,7 +62,7 @@ public class EventService {
         Event event = getEventById(id);
 
         if (!event.getOrganizer().getId().equals(userId)) {
-            throw new IllegalArgumentException("Only the organizer can delete this event");
+            throw new UnauthorizedActionException("Only the organizer can delete this event");
         }
 
         eventRepository.delete(event);
