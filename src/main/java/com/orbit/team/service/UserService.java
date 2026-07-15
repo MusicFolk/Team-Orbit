@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -54,5 +56,16 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
         return userResponse(user);
+    }
+
+    public List<UserResponse> getAllUsers(){
+        return userRepository.findAll().stream().map(this::userResponse).toList();
+    }
+
+    public UserResponse setStatus(Long id, boolean status) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+        user.setActive(status);
+        return userResponse(userRepository.save(user));
     }
 }

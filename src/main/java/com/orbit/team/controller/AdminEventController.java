@@ -1,28 +1,22 @@
 package com.orbit.team.controller;
 
+import com.orbit.team.service.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/api/admin/events")
 @RequiredArgsConstructor
-@EnableMethodSecurity
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminEventController {
 
-    // private EventService eventService;
-
-    @GetMapping
-    public String getAllEvents() {
-        return null;
-    }
+    private EventService eventService;
 
     @DeleteMapping("/{id}")
-    public void deleteEvent(@PathVariable Long id) {}
-
-/*    @PutMapping("/{id}")
-    public void updateEvent(@PathVariable Long id) {}*/
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEvent(@PathVariable Long id) {
+        eventService.deleteEventAsAdmin(id);
+    }
 }
