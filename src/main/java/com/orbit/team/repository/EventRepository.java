@@ -12,7 +12,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByOrganizer(User organizer);
 
-    List<Event> findByCategoryId(EventCategory category);
+    List<Event> findByCategory(EventCategory category);
 
     List<Event> findByLocationContainingIgnoreCase(String location);
 
