@@ -2,86 +2,116 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title th:text="${event.title} + ' — Orbit'">Orbit — Event</title>
+  <title>Orbit — Log In</title>
   <style>
-    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:#f4f6fb; color:#2c2c34; }
-    .wrap { max-width:900px; margin:0 auto; padding:32px 24px; }
-    .breadcrumb { font-size:12.5px; margin-bottom:10px; }
-    .breadcrumb a { color:#6b6f80; text-decoration:none; }
-    h1 { color:#1E2761; font-size:24px; margin:0 0 16px 0; }
-    .hero { height:160px; border-radius:10px; background:linear-gradient(135deg,#1E2761,#3b4694); margin-bottom:20px; }
-    .grid { display:grid; grid-template-columns:2fr 1fr; gap:24px; }
-    .card { background:#fff; border:1px solid #e1e4ec; border-radius:10px; padding:24px; box-sizing:border-box; }
-    .tag { display:inline-block; font-size:11px; font-weight:600; color:#1E2761; background:#eef3fd; border:1px solid #CADCFC; border-radius:20px; padding:2px 10px; margin-bottom:12px; }
-    .desc { font-size:14px; line-height:1.6; }
-    .meta-list { list-style:none; padding:0; margin:0; }
-    .meta-list li { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #e1e4ec; font-size:13.5px; }
-    .meta-list li:last-child { border-bottom:none; }
-    .meta-list .k { color:#6b6f80; }
-    .meta-list .v { font-weight:600; }
-    .rsvp-group { display:flex; gap:8px; margin-top:16px; }
-    .rsvp-group form { flex:1; }
-    .rsvp-group button { width:100%; padding:10px; border:none; border-radius:6px; font-size:13.5px; font-weight:600; cursor:pointer; }
-    .rsvp-attending { background:#2f8f5b; color:#fff; }
-    .rsvp-maybe { background:#fff4e6; color:#c96a1f; border:1px solid #f2d3a8; }
-    .rsvp-no { background:#fdeceb; color:#c94a4a; border:1px solid #f3c8c4; }
-    .btn-row { margin-top:20px; display:flex; gap:10px; }
-    .btn-secondary { background:#eef3fd; color:#1E2761; border:1px solid #CADCFC; padding:8px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; }
-    .current-rsvp { font-size:12.5px; color:#6b6f80; margin-top:10px; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f4f6fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 360px;
+      background: #ffffff;
+      border: 1px solid #e1e4ec;
+      border-radius: 10px;
+      padding: 32px;
+    }
+    h1 {
+      color: #1E2761;
+      font-size: 24px;
+      margin: 0 0 4px 0;
+    }
+    .subtitle {
+      color: #6b6f80;
+      font-size: 14px;
+      margin: 0 0 20px 0;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 14px 0 6px 0;
+    }
+    input[type=email], input[type=password] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e1e4ec;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 10px 18px;
+      background: #1E2761;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #141a47; }
+    .helper {
+      margin-top: 18px;
+      font-size: 13.5px;
+      color: #6b6f80;
+      text-align: center;
+    }
+    .helper a { color: #1E2761; }
+    .alert {
+      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    .alert-error {
+      background: #fdeceb;
+      color: #c94a4a;
+      border: 1px solid #f3c8c4;
+    }
+    .alert-success {
+      background: #e5f5eb;
+      color: #2f8f5b;
+      border: 1px solid #b8e0c8;
+    }
   </style>
 </head>
 <body>
 
-<div class="wrap">
-  <div class="breadcrumb"><a th:href="@{/events}">&larr; Back to events</a></div>
-  <h1 th:text="${event.title}">Event Title</h1>
-  <div class="hero"></div>
+<div class="login-card">
+  <h1>Orbit</h1>
+  <p class="subtitle">Log in to your account</p>
 
-  <div class="grid">
-    <div class="card">
-      <span class="tag" th:text="${event.category}">Category</span>
-      <p class="desc" th:text="${event.description}">Event description goes here.</p>
-
-      <!-- Each RSVP button submits its own tiny form with a fixed status value -->
-      <div class="rsvp-group">
-        <form th:action="@{/events/{id}/rsvp(id=${event.id})}" method="post">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <input type="hidden" name="status" value="ATTENDING"/>
-          <button type="submit" class="rsvp-attending">Attending</button>
-        </form>
-        <form th:action="@{/events/{id}/rsvp(id=${event.id})}" method="post">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <input type="hidden" name="status" value="MAYBE"/>
-          <button type="submit" class="rsvp-maybe">Maybe</button>
-        </form>
-        <form th:action="@{/events/{id}/rsvp(id=${event.id})}" method="post">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <input type="hidden" name="status" value="NO"/>
-          <button type="submit" class="rsvp-no">No</button>
-        </form>
-      </div>
-      <p class="current-rsvp" th:if="${currentRsvpStatus}">
-        Your current RSVP: <strong th:text="${currentRsvpStatus}">ATTENDING</strong>
-      </p>
-    </div>
-
-    <div class="card">
-      <ul class="meta-list">
-        <li><span class="k">Date &amp; Time</span><span class="v" th:text="${event.date} + ' · ' + ${event.time}">Date · Time</span></li>
-        <li><span class="k">Location</span><span class="v" th:text="${event.location}">Location</span></li>
-        <li><span class="k">Capacity</span><span class="v" th:text="${event.attendeeCount} + ' / ' + ${event.capacity}">0 / 0</span></li>
-        <li><span class="k">Organizer</span><span class="v" th:text="${event.organizerName}">Organizer</span></li>
-      </ul>
-
-      <!-- Only shown when the logged-in user is this event's organizer -->
-      <div class="btn-row" th:if="${isOrganizer}">
-        <a class="btn-secondary" th:href="@{/events/{id}/attendees(id=${event.id})}">View Attendees</a>
-        <a class="btn-secondary" th:href="@{/events/{id}/edit(id=${event.id})}">Edit Event</a>
-      </div>
-    </div>
+  <!-- Spring Security appends ?error / ?logout to the redirect URL -->
+  <div class="alert alert-error" th:if="${param.error}">
+    Invalid email or password.
   </div>
+  <div class="alert alert-success" th:if="${param.logout}">
+    You have been logged out.
+  </div>
+
+  <form th:action="@{/login}" method="post">
+    <!-- CSRF token required by default when Spring Security is on the classpath -->
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="username" required autofocus>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit">Log In</button>
+  </form>
+
+  <p class="helper">Don't have an account? <a th:href="@{/register}">Register</a></p>
 </div>
 
 </body>
 </html>
- 
