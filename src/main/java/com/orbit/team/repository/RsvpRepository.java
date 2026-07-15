@@ -3,6 +3,7 @@ package com.orbit.team.repository;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.RSVP;
 import com.orbit.team.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
