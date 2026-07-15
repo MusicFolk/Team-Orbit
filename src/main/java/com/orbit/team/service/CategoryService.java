@@ -1,12 +1,24 @@
 package com.orbit.team.service;
 
 import com.orbit.team.entity.Category;
+import com.orbit.team.repository.CategoryRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public interface CategoryService {
+@Service
+@RequiredArgsConstructor
+public class CategoryService {
 
-    List<Category> getAllCategories();
+    private final CategoryRepository categoryRepository;
 
-    Category getCategoryById(Long id);
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
+    }
+
+    public Category getCategoryById(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
+    }
 }
