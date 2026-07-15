@@ -64,7 +64,7 @@ public class EventController {
         response.setLocation(event.getLocation());
         response.setEventDateTime(event.getEventDateTime());
         response.setCapacity(event.getCapacity());
-        response.setCategoryId(event.getCategory().getId());
+        response.setCategory(event.getCategory());
         response.setOrganizer(event.getOrganizer().getUsername());
         return response;
     }
