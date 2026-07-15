@@ -23,20 +23,20 @@ public class AuthController {
     }
 
     @GetMapping("/api/auth/register")
-    public String registerPage(Model formData) {
-        formData.addAttribute("registerForm", new RegisterRequest());
+    public String registerPage(Model model) {
+        model.addAttribute("registerForm", new RegisterRequest());
         return "register";
     }
 
     @PostMapping("/api/auth/register")
-    public String register(@Valid @ModelAttribute("registerForm") RegisterRequest registerForm, BindingResult bindingResult, Model formData) {
+    public String register(@Valid @ModelAttribute("registerForm") RegisterRequest registerForm, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             return "register";
         }
         try {
             userService.registerUser(registerForm);
         } catch (IllegalArgumentException illegalArgumentException) {
-            formData.addAttribute("registrationError", illegalArgumentException.getMessage());
+            model.addAttribute("registrationError", illegalArgumentException.getMessage());
             return "register";
         }
         return "redirect:/api/auth/login";
