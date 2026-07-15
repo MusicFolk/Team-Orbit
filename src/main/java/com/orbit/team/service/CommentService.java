@@ -1,14 +1,15 @@
 package com.orbit.team.service;
 
-import com.orbit.team.entity.Comment;
+import com.orbit.team.dto.request.CommentRequest;
+import com.orbit.team.dto.response.CommentResponse;
 
 import java.util.List;
 
 public interface CommentService {
 
-    Comment addComment(Comment comment);
+    CommentResponse addComment(Long eventId, Long userId, CommentRequest request);
 
-    List<Comment> getCommentsForEvent(Long eventId);
+    List<CommentResponse> getCommentsForEvent(Long eventId);
 
     void deleteComment(Long commentId, Long userId);
 }
