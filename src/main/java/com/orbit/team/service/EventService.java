@@ -9,6 +9,7 @@ import com.orbit.team.repository.RsvpRepository;
 import com.orbit.team.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,7 +19,6 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final RsvpService rsvpService;
     private final RsvpRepository rsvpRepository;
     private final CommentRepository commentRepository;
 
@@ -61,6 +61,7 @@ public class EventService {
         return eventRepository.save(event);
     }
 
+    @Transactional
     public void deleteEvent(Long id, Long userId) {
         Event event = getEventById(id);
 
@@ -72,6 +73,7 @@ public class EventService {
         eventRepository.delete(event);
     }
 
+    @Transactional
     public void deleteEventAsAdmin(Long id) {
         Event event = getEventById(id);
         rsvpRepository.deleteAll(rsvpRepository.findByEvent(event));

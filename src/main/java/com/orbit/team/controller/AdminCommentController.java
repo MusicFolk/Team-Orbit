@@ -1,10 +1,12 @@
 package com.orbit.team.controller;
 
 import com.orbit.team.dto.response.CommentResponse;
-import com.orbit.team.entity.Comment;
-import com.orbit.team.repository.CommentRepository;
+import com.orbit.team.security.UserSecurity;
+import com.orbit.team.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,17 +17,17 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminCommentController {
 
-    private CommentRepository commentRepository;
+    private final CommentService commentService;
 
     @GetMapping("/{eventId}")
     public List<CommentResponse> getAllComments(@PathVariable Long eventId) {
-
-        return commentRepository.findByEvent_IdOrderByCreatedAtAsc(eventId).stream()
-                .map(this::toResponse)
-                .toList();
+        return commentService.getCommentsForEvent(eventId);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteComment(@PathVariable Long id) {}
-
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable Long id,
+                              @AuthenticationPrincipal UserSecurity userSecurity) {
+        commentService.deleteComment(id, userSecurity.getId());
+    }
 }
