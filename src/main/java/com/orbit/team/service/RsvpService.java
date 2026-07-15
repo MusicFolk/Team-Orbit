@@ -6,6 +6,7 @@ import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.entity.User;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.RsvpRepository;
+import com.orbit.team.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,11 @@ public class RsvpService {
 
     private final RsvpRepository rsvpRepository;
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
 
-    public RSVP submitRsvp(User user, Long eventId, RsvpStatus status) {
+    public RSVP submitRsvp(Long userId, Long eventId, RsvpStatus status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found: " + eventId));
 
@@ -37,7 +41,9 @@ public class RsvpService {
                 });
     }
 
-    public void cancelRsvp(User user, Long eventId) {
+    public void cancelRsvp(Long userId, Long eventId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found: " + eventId));
 
