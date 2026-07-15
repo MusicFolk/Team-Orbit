@@ -1,6 +1,7 @@
 package com.orbit.team.repository;
 
 import com.orbit.team.entity.Event;
+import com.orbit.team.entity.EventCategory;
 import com.orbit.team.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,7 +12,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByOrganizer(User organizer);
 
-    List<Event> findByCategoryId(Long categoryId);
+    List<Event> findByCategoryId(EventCategory category);
 
     List<Event> findByLocationContainingIgnoreCase(String location);
 
