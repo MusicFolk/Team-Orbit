@@ -5,10 +5,13 @@ import com.orbit.team.entity.Event;
 import com.orbit.team.entity.User;
 import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.exception.UnauthorizedActionException;
+import com.orbit.team.repository.CommentRepository;
 import com.orbit.team.repository.EventRepository;
+import com.orbit.team.repository.RsvpRepository;
 import com.orbit.team.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +21,8 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final RsvpRepository rsvpRepository;
+    private final CommentRepository commentRepository;
 
     public Event createEvent(EventRequest request, Long userId) {
         User currentUser = userRepository.findById(userId)
@@ -58,6 +63,7 @@ public class EventService {
         return eventRepository.save(event);
     }
 
+    @Transactional
     public void deleteEvent(Long id, Long userId) {
         Event event = getEventById(id);
 
@@ -65,6 +71,17 @@ public class EventService {
             throw new UnauthorizedActionException("Only the organizer can delete this event");
         }
 
+        rsvpRepository.deleteAll(rsvpRepository.findByEvent(event));
+        commentRepository.deleteAll(commentRepository.findByEventOrderByCreatedAtAsc(event));
+        eventRepository.delete(event);
+    }
+
+    @Transactional
+    public void deleteEventAsAdmin(Long id) {
+        Event event = getEventById(id);
+
+        rsvpRepository.deleteAll(rsvpRepository.findByEvent(event));
+        commentRepository.deleteAll(commentRepository.findByEventOrderByCreatedAtAsc(event));
         eventRepository.delete(event);
     }
 
