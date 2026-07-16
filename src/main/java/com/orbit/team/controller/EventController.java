@@ -1,10 +1,12 @@
 package com.orbit.team.controller;
 
 import com.orbit.team.dto.request.EventRequest;
+import com.orbit.team.dto.response.AttendeeResponse;
 import com.orbit.team.dto.response.EventResponse;
 import com.orbit.team.entity.Event;
 import com.orbit.team.security.UserSecurity;
 import com.orbit.team.service.EventService;
+import com.orbit.team.service.RsvpService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class EventController {
 
     private final EventService eventService;
+    private final RsvpService rsvpService;
 
     @GetMapping
     public List<EventResponse> getAllEvents() {
@@ -67,5 +70,10 @@ public class EventController {
         response.setCategory(event.getCategory());
         response.setOrganizer(event.getOrganizer().getUsername());
         return response;
+    }
+
+    @GetMapping("/{id}/attendees")
+    public List<AttendeeResponse> getAttendees(@PathVariable Long id, @AuthenticationPrincipal UserSecurity userSecurity) {
+        return rsvpService.getRsvpsForEvent(id, userSecurity.getId());
     }
 }

@@ -7,6 +7,7 @@ import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.entity.User;
 import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.exception.RsvpConflictException;
+import com.orbit.team.exception.UnauthorizedActionException;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.RsvpRepository;
 import com.orbit.team.repository.UserRepository;
@@ -76,10 +77,14 @@ public class RsvpService {
                 .ifPresent(rsvpRepository::delete);
     }
 
-    public List<AttendeeResponse> getRsvpsForEvent(Long eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            throw new ResourceNotFoundException("Event not found: " + eventId);
+    public List<AttendeeResponse> getRsvpsForEvent(Long eventId, Long userId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found: " + eventId));
+
+        if (!event.getOrganizer().getId().equals(userId)) {
+            throw new UnauthorizedActionException("Only the organizer can view the attendee list");
         }
+
         return rsvpRepository.findByEvent_Id(eventId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
