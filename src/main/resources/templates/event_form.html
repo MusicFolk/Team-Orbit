@@ -10,8 +10,9 @@
         .card { background:#fff; border:1px solid #e1e4ec; border-radius:10px; padding:24px; box-sizing:border-box; }
         label { display:block; font-size:13px; font-weight:600; margin:14px 0 6px 0; }
         label:first-child { margin-top:0; }
-        input[type=text], input[type=date], input[type=time], input[type=number], select, textarea {
-            width:100%; padding:10px 12px; border:1px solid #e1e4ec; border-radius:6px; font-size:14px; font-family:inherit; box-sizing:border-box;
+        input[type=text], input[type=datetime-local], input[type=number], select, textarea {
+            width:100%; padding:10px 12px; border:1px solid #e1e4ec; border-radius:6px;
+            font-size:14px; font-family:inherit; box-sizing:border-box;
         }
         textarea { resize:vertical; min-height:80px; }
         .row-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -29,11 +30,9 @@
     <h1 th:text="${isEdit} ? 'Edit Event' : 'Create Event'">Create Event</h1>
 
     <div class="card">
-        <!-- Same form/model shape for create and edit; th:action switches target -->
-        <form th:action="${isEdit} ? @{/events/{id}(id=${eventForm.id})} : @{/events}"
+        <form th:action="${isEdit} ? @{/events/{id}(id=${eventId})} : @{/events}"
               th:object="${eventForm}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <!-- Spring's HiddenHttpMethodFilter converts this POST into a PUT for edits -->
             <input type="hidden" name="_method" value="put" th:if="${isEdit}"/>
 
             <label for="title">Title</label>
@@ -42,6 +41,7 @@
 
             <label for="description">Description</label>
             <textarea id="description" th:field="*{description}"></textarea>
+            <p class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
 
             <div class="row-2">
                 <div>
@@ -56,31 +56,27 @@
                 </div>
             </div>
 
-            <div class="row-2">
-                <div>
-                    <label for="date">Date</label>
-                    <input type="date" id="date" th:field="*{date}" required>
-                </div>
-                <div>
-                    <label for="time">Time</label>
-                    <input type="time" id="time" th:field="*{time}" required>
-                </div>
-            </div>
+            <label for="eventDateTime">Date & Time</label>
+            <input type="datetime-local" id="eventDateTime" th:field="*{eventDateTime}" required>
+            <p class="field-error" th:if="${#fields.hasErrors('eventDateTime')}" th:errors="*{eventDateTime}"></p>
 
             <label for="capacity">Capacity</label>
             <input type="number" id="capacity" th:field="*{capacity}" min="1" required>
 
             <div class="btn-row">
-                <button type="submit" class="btn btn-primary" th:text="${isEdit} ? 'Save Changes' : 'Create Event'">Save</button>
+                <button type="submit" class="btn btn-primary"
+                        th:text="${isEdit} ? 'Save Changes' : 'Create Event'">Save</button>
                 <a class="btn btn-secondary" th:href="@{/events}">Cancel</a>
 
-                <!-- Delete lives outside the main form since it needs its own DELETE submission -->
-                <form th:if="${isEdit}" th:action="@{/events/{id}(id=${eventForm.id})}" method="post" style="margin-left:auto">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <input type="hidden" name="_method" value="delete"/>
-                    <button type="submit" class="btn btn-danger">Delete Event</button>
-                </form>
+                <button type="submit" form="deleteForm" class="btn btn-danger"
+                        th:if="${isEdit}" style="margin-left:auto">Delete Event</button>
             </div>
+        </form>
+
+        <form th:if="${isEdit}" id="deleteForm"
+              th:action="@{/events/{id}(id=${eventId})}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="_method" value="delete"/>
         </form>
     </div>
 </div>
