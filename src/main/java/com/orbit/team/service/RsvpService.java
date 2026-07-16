@@ -1,17 +1,21 @@
 package com.orbit.team.service;
 
+import com.orbit.team.dto.response.AttendeeResponse;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.RSVP;
 import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.entity.User;
 import com.orbit.team.exception.ResourceNotFoundException;
+import com.orbit.team.exception.RsvpConflictException;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.RsvpRepository;
 import com.orbit.team.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,25 +25,45 @@ public class RsvpService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public RSVP submitRsvp(Long userId, Long eventId, RsvpStatus status) {
+    public AttendeeResponse createRsvp(Long userId, Long eventId, RsvpStatus status) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found: " + eventId));
 
-        return rsvpRepository.findByUserAndEvent(user, event)
-                .map(existing -> {
-                    existing.setStatus(status);
-                    return rsvpRepository.save(existing);
-                })
-                .orElseGet(() -> {
-                    RSVP rsvp = RSVP.builder()
-                            .user(user)
-                            .event(event)
-                            .status(status)
-                            .build();
-                    return rsvpRepository.save(rsvp);
-                });
+        if (rsvpRepository.findByUserAndEvent(user, event).isPresent()) {
+            throw new RsvpConflictException("RSVP already exists for this event");
+        }
+
+        RSVP rsvp = RSVP.builder()
+                .user(user)
+                .event(event)
+                .status(status)
+                .build();
+
+        try {
+            return toResponse(rsvpRepository.save(rsvp));
+        } catch (DataIntegrityViolationException ex) {
+            throw new RsvpConflictException("Could not create RSVP due to a data conflict", ex);
+        }
+    }
+
+    public AttendeeResponse updateRsvp(Long userId, Long eventId, RsvpStatus status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found: " + eventId));
+
+        RSVP rsvp = rsvpRepository.findByUserAndEvent(user, event)
+                .orElseThrow(() -> new ResourceNotFoundException("No existing RSVP to update for this event"));
+
+        rsvp.setStatus(status);
+
+        try {
+            return toResponse(rsvpRepository.save(rsvp));
+        } catch (DataIntegrityViolationException ex) {
+            throw new RsvpConflictException("Could not update RSVP due to a data conflict", ex);
+        }
     }
 
     public void cancelRsvp(Long userId, Long eventId) {
@@ -52,14 +76,26 @@ public class RsvpService {
                 .ifPresent(rsvpRepository::delete);
     }
 
-    public List<RSVP> getRsvpsForEvent(Long eventId) {
+    public List<AttendeeResponse> getRsvpsForEvent(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
             throw new ResourceNotFoundException("Event not found: " + eventId);
         }
-        return rsvpRepository.findByEvent_Id(eventId);
+        return rsvpRepository.findByEvent_Id(eventId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-    public List<RSVP> getRsvpsForUser(Long userId) {
-        return rsvpRepository.findByUser_Id(userId);
+    public List<AttendeeResponse> getRsvpsForUser(Long userId) {
+        return rsvpRepository.findByUser_Id(userId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    private AttendeeResponse toResponse(RSVP rsvp) {
+        AttendeeResponse response = new AttendeeResponse();
+        response.setUserId(rsvp.getUser().getId());
+        response.setFullName(rsvp.getUser().getFullName());
+        response.setStatus(rsvp.getStatus());
+        return response;
     }
 }

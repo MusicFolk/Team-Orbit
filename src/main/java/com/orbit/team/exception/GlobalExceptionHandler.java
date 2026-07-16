@@ -36,4 +36,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ex.getMessage());
     }
+
+    @ResponseBody
+    @ExceptionHandler(RsvpConflictException.class)
+    public ResponseEntity<String> handleRsvpConflict(RsvpConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
 }
