@@ -3,6 +3,9 @@ package com.orbit.team.service;
 import com.orbit.team.dto.request.RegisterRequest;
 import com.orbit.team.dto.response.UserResponse;
 import com.orbit.team.entity.User;
+import com.orbit.team.exception.DuplicateEmailException;
+import com.orbit.team.exception.DuplicateUsernameException;
+import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,10 +32,10 @@ public class UserService {
 
     public UserResponse registerUser(RegisterRequest registerRequest) {
         if(userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new IllegalArgumentException("This email is already in use");
+            throw new DuplicateEmailException("This email is already in use");
         }
         if(userRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new IllegalArgumentException("This username is already in use");
+            throw new DuplicateUsernameException("This username is already in use");
         }
         User newUser = User.builder()
                 .username(registerRequest.getUsername())
@@ -48,13 +51,13 @@ public class UserService {
 
     public UserResponse getById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
         return userResponse(user);
     }
 
     public UserResponse getByUsername(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
         return userResponse(user);
     }
 
@@ -64,7 +67,7 @@ public class UserService {
 
     public UserResponse setStatus(Long id, boolean status) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
         user.setActive(status);
         return userResponse(userRepository.save(user));
     }
