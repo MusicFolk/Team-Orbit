@@ -1,11 +1,12 @@
 package com.orbit.team.controller;
 
 import com.orbit.team.dto.request.EventRequest;
-import com.orbit.team.dto.response.AttendeeResponse;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.EventCategory;
+import com.orbit.team.entity.RSVP;
 import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.exception.UnauthorizedActionException;
+import com.orbit.team.repository.RsvpRepository;
 import com.orbit.team.security.UserSecurity;
 import com.orbit.team.service.CommentService;
 import com.orbit.team.service.EventService;
@@ -32,6 +33,7 @@ public class PageController {
     private final EventService eventService;
     private final RsvpService rsvpService;
     private final CommentService commentService;
+    private final RsvpRepository rsvpRepository;
 
     @GetMapping("/home")
     public String home() {
@@ -86,18 +88,23 @@ public class PageController {
                               Model model) {
 
         Event event = eventService.getEventById(id);
-        List<AttendeeResponse> attendees = rsvpService.getRsvpsForEvent(id);
+        boolean isOrganizer = event.getOrganizer().getId().equals(currentUser.getId());
+        List<RSVP> rsvps = rsvpRepository.findByEvent_Id(id);
 
         model.addAttribute("event", event);
-        model.addAttribute("isOrganizer", event.getOrganizer().getId().equals(currentUser.getId()));
-        model.addAttribute("attendees", attendees);
+        model.addAttribute("isOrganizer", isOrganizer);
         model.addAttribute("attendeeCount",
-                attendees.stream().filter(a -> a.getStatus() == RsvpStatus.ATTENDING).count());
+                rsvps.stream().filter(r -> r.getStatus() == RsvpStatus.ATTENDING).count());
 
-        attendees.stream()
-                .filter(a -> a.getUserId().equals(currentUser.getId()))
+        rsvps.stream()
+                .filter(r -> r.getUser().getId().equals(currentUser.getId()))
                 .findFirst()
-                .ifPresent(a -> model.addAttribute("currentRsvpStatus", a.getStatus()));
+                .ifPresent(r -> model.addAttribute("currentRsvpStatus", r.getStatus()));
+
+        // getRsvpsForEvent is organizer-only in the service, so only the organizer gets the roster.
+        if (isOrganizer) {
+            model.addAttribute("attendees", rsvpService.getRsvpsForEvent(id, currentUser.getId()));
+        }
 
         model.addAttribute("comments", commentService.getCommentsForEvent(id));
 
@@ -175,8 +182,8 @@ public class PageController {
                              @RequestParam RsvpStatus status,
                              @AuthenticationPrincipal UserSecurity currentUser) {
 
-        boolean alreadyRsvpd = rsvpService.getRsvpsForEvent(id).stream()
-                .anyMatch(a -> a.getUserId().equals(currentUser.getId()));
+        boolean alreadyRsvpd = rsvpRepository.findByEvent_Id(id).stream()
+                .anyMatch(r -> r.getUser().getId().equals(currentUser.getId()));
 
         if (alreadyRsvpd) {
             rsvpService.updateRsvp(currentUser.getId(), id, status);
