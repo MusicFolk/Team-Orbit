@@ -177,19 +177,6 @@ public class PageController {
         return "redirect:/events";
     }
 
-    @PostMapping("/events/{id}/comments")
-    public String addComment(@PathVariable Long id,
-                             @RequestParam String content,
-                             @AuthenticationPrincipal UserSecurity currentUser) {
-
-        if (content != null && !content.isBlank()) {
-            CommentRequest request = new CommentRequest();
-            request.setContent(content);
-            commentService.addComment(id, currentUser.getId(), request);
-        }
-        return "redirect:/events/" + id;
-    }
-
     private static EventRequest toRequest(Event event) {
         EventRequest request = new EventRequest();
         request.setTitle(event.getTitle());
