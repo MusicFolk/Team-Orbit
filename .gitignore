@@ -19,6 +19,8 @@ target/
 *.iws
 *.iml
 *.ipr
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
 
 ### NetBeans ###
 /nbproject/private/

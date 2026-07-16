@@ -29,12 +29,16 @@
     </div>
 
     <!-- th:object binds to a RegisterRequest-shaped model attribute set by the controller -->
-    <form th:action="@{/register}" th:object="${registerForm}" method="post">
+    <form th:action="@{/api/auth/register}" th:object="${registerForm}" method="post">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-        <label for="name">Full Name</label>
-        <input type="text" id="name" th:field="*{name}" required autofocus>
-        <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+        <label for="username">Username</label>
+        <input type="text" id="username" th:field="*{username}" required autofocus>
+        <p class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" th:field="*{fullName}" required>
+        <p class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
 
         <label for="email">Email</label>
         <input type="email" id="email" th:field="*{email}" required>
@@ -44,14 +48,10 @@
         <input type="password" id="password" th:field="*{password}" required>
         <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
 
-        <label for="confirmPassword">Confirm Password</label>
-        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required>
-        <p class="field-error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></p>
-
         <button type="submit">Create Account</button>
     </form>
 
-    <p class="helper">Already have an account? <a th:href="@{/login}">Log in</a></p>
+    <p class="helper">Already have an account? <a th:href="@{/api/auth/login}">Log in</a></p>
 </div>
 
 </body>
