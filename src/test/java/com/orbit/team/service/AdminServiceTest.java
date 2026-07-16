@@ -3,6 +3,7 @@ package com.orbit.team.service;
 import com.orbit.team.entity.Comment;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.User;
+import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.repository.CommentRepository;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.UserRepository;
@@ -74,7 +75,7 @@ public class AdminServiceTest {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> adminService.deactivateUser(99L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
 
         verify(userRepository, never()).save(any());
@@ -95,7 +96,7 @@ public class AdminServiceTest {
         when(userRepository.existsById(99L)).thenReturn(false);
 
         assertThatThrownBy(() -> adminService.deleteUser(99L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
 
         verify(userRepository, never()).deleteById(any());
@@ -126,7 +127,7 @@ public class AdminServiceTest {
         when(eventRepository.existsById(99L)).thenReturn(false);
 
         assertThatThrownBy(() -> adminService.deleteEvent(99L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Event not found");
 
         verify(eventRepository, never()).deleteById(any());
@@ -159,9 +160,9 @@ public class AdminServiceTest {
         when(commentRepository.existsById(99L)).thenReturn(false);
 
         assertThatThrownBy(() -> adminService.deleteComment(99L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Comment not found");
 
         verify(commentRepository, never()).deleteById(any());
     }
-}
+}f
