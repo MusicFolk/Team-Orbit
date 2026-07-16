@@ -6,6 +6,7 @@ import com.orbit.team.entity.RSVP;
 import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.entity.User;
 import com.orbit.team.exception.ResourceNotFoundException;
+import com.orbit.team.exception.RsvpConflictException;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.RsvpRepository;
 import com.orbit.team.repository.UserRepository;
@@ -31,7 +32,7 @@ public class RsvpService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found: " + eventId));
 
         if (rsvpRepository.findByUserAndEvent(user, event).isPresent()) {
-            throw new IllegalStateException("RSVP already exists for this event");
+            throw new RsvpConflictException("RSVP already exists for this event");
         }
 
         RSVP rsvp = RSVP.builder()
@@ -43,7 +44,7 @@ public class RsvpService {
         try {
             return toResponse(rsvpRepository.save(rsvp));
         } catch (DataIntegrityViolationException ex) {
-            throw new IllegalStateException("Could not create RSVP due to a data conflict", ex);
+            throw new RsvpConflictException("Could not create RSVP due to a data conflict", ex);
         }
     }
 
@@ -61,7 +62,7 @@ public class RsvpService {
         try {
             return toResponse(rsvpRepository.save(rsvp));
         } catch (DataIntegrityViolationException ex) {
-            throw new IllegalStateException("Could not update RSVP due to a data conflict", ex);
+            throw new RsvpConflictException("Could not update RSVP due to a data conflict", ex);
         }
     }
 
