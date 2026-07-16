@@ -177,22 +177,6 @@ public class PageController {
         return "redirect:/events";
     }
 
-    @PostMapping("/events/{id}/rsvp")
-    public String submitRsvp(@PathVariable Long id,
-                             @RequestParam RsvpStatus status,
-                             @AuthenticationPrincipal UserSecurity currentUser) {
-
-        boolean alreadyRsvpd = rsvpRepository.findByEvent_Id(id).stream()
-                .anyMatch(r -> r.getUser().getId().equals(currentUser.getId()));
-
-        if (alreadyRsvpd) {
-            rsvpService.updateRsvp(currentUser.getId(), id, status);
-        } else {
-            rsvpService.createRsvp(currentUser.getId(), id, status);
-        }
-        return "redirect:/events/" + id;
-    }
-
     @PostMapping("/events/{id}/comments")
     public String addComment(@PathVariable Long id,
                              @RequestParam String content,
