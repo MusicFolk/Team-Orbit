@@ -4,6 +4,8 @@ import com.orbit.team.dto.request.EventRequest;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.EventCategory;
 import com.orbit.team.entity.User;
+import com.orbit.team.exception.ResourceNotFoundException;
+import com.orbit.team.exception.UnauthorizedActionException;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,7 +79,7 @@ public class EventServiceTest {
 
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> eventService.createEvent(request, 99L)).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> eventService.createEvent(request, 99L)).isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
     }
 
@@ -95,7 +97,7 @@ public class EventServiceTest {
 
         when(eventRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> eventService.getEventById(999L)).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> eventService.getEventById(999L)).isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Event not found");
     }
 
@@ -116,7 +118,7 @@ public class EventServiceTest {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
         assertThatThrownBy(() -> eventService.updateEvent(1L, request, 2L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(UnauthorizedActionException.class)
                 .hasMessageContaining("Only the organizer");
 
         verify(eventRepository, never()).save(any());
@@ -136,7 +138,7 @@ public class EventServiceTest {
     void deleteEvent_shouldThrowWhenNoOrganizer() {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
-        assertThatThrownBy(() -> eventService.deleteEvent(1L, 2L)).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> eventService.deleteEvent(1L, 2L)).isInstanceOf(UnauthorizedActionException.class)
                 .hasMessageContaining("Only the organizer");
 
         verify(eventRepository, never()).delete(any());
