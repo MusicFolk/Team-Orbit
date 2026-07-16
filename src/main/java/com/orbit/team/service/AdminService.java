@@ -6,6 +6,7 @@ import com.orbit.team.entity.User;
 import com.orbit.team.repository.CommentRepository;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.UserRepository;
+import com.orbit.team.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class AdminService {
 
     public User deactivateUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
 
         user.setActive(false);
         return userRepository.save(user);
@@ -33,7 +34,7 @@ public class AdminService {
 
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new IllegalArgumentException("User not found: " + userId);
+            throw new ResourceNotFoundException("User not found: " + userId);
         }
         userRepository.deleteById(userId);
     }
@@ -44,7 +45,7 @@ public class AdminService {
 
     public void deleteEvent(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
-            throw new IllegalArgumentException("Event not found: " + eventId);
+            throw new ResourceNotFoundException("Event not found: " + eventId);
         }
         eventRepository.deleteById(eventId);
     }
@@ -55,7 +56,7 @@ public class AdminService {
 
     public void deleteComment(Long commentId) {
         if (!commentRepository.existsById(commentId)) {
-            throw new IllegalArgumentException("Comment not found: " + commentId);
+            throw new ResourceNotFoundException("Comment not found: " + commentId);
         }
         commentRepository.deleteById(commentId);
     }
