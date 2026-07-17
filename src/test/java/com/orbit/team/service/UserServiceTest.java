@@ -3,6 +3,9 @@ package com.orbit.team.service;
 import com.orbit.team.dto.request.RegisterRequest;
 import com.orbit.team.dto.response.UserResponse;
 import com.orbit.team.entity.User;
+import com.orbit.team.exception.DuplicateEmailException;
+import com.orbit.team.exception.DuplicateUsernameException;
+import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,7 +80,7 @@ public class UserServiceTest {
         when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(true);
 
         assertThatThrownBy(() -> userService.registerUser(registerRequest))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(DuplicateEmailException.class)
                 .hasMessageContaining("This email is already in use");
 
         verify(userRepository, never()).save(any());
@@ -90,7 +93,7 @@ public class UserServiceTest {
         when(userRepository.existsByUsername(registerRequest.getUsername())).thenReturn(true);
 
         assertThatThrownBy(() -> userService.registerUser(registerRequest))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(DuplicateUsernameException.class)
                 .hasMessageContaining("This username is already in use");
 
         verify(userRepository, never()).save(any());
@@ -114,7 +117,7 @@ public class UserServiceTest {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getById(99L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
     }
 
@@ -135,7 +138,7 @@ public class UserServiceTest {
         when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getByUsername("unknown"))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
     }
 }
