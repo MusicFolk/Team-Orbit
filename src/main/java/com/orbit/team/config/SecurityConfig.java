@@ -1,5 +1,6 @@
 package com.orbit.team.config;
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,59 +25,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
-
-                        .requestMatchers(
-                                "/",
-                                "/home",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/webjars/**",
-                                "/api/auth/login",
-                                "/api/auth/register"
-                        ).permitAll()
-
+                        .requestMatchers("/api/auth/register","/api/auth/login").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
                         .anyRequest().authenticated()
-
                 )
-
                 .formLogin(form -> form
-
                         .loginPage("/api/auth/login")
-
                         .loginProcessingUrl("/api/auth/login")
-
-                        .defaultSuccessUrl("/", true)
-
-                        .permitAll()
-
-                )
-
+                        .defaultSuccessUrl("/home", true))
                 .logout(logout -> logout
-
-                        .logoutSuccessUrl("/")
-
-                        .permitAll()
-
-                );
-
-        return http.build();
+                        .logoutSuccessUrl("/api/auth/login?logout")
+                        .permitAll());
+        return httpSecurity.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder) {
-
-        DaoAuthenticationProvider authenticationProvider =
-                new DaoAuthenticationProvider(userDetailsService);
-
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
 
         return new ProviderManager(authenticationProvider);
