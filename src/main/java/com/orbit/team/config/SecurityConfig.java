@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/api/auth/login")
                         .defaultSuccessUrl("/home", true))
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/api/auth/login")
+                        .logoutSuccessUrl("/api/auth/login?logout")
                         .permitAll());
         return httpSecurity.build();
     }
