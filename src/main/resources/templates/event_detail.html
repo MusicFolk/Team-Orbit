@@ -84,7 +84,7 @@
                                                         th:text="${event.eventDateTime.toLocalDate()} + ' · ' + ${event.eventDateTime.toLocalTime()}">Date · Time</span></li>
         <li><span class="k">Location</span><span class="v" th:text="${event.location}">Location</span></li>
         <li><span class="k">Capacity</span><span class="v"
-                                                 th:text="${attendeeCount} + ' / ' + ${event.capacity}">0 / 0</span></li>
+                                                 th:text="${(attendeeCount != null ? attendeeCount + ' / ' : '') + event.capacity}">0 / 0</span></li>
         <li><span class="k">Organizer</span><span class="v" th:text="${event.organizer.fullName}">Organizer</span></li>
       </ul>
 

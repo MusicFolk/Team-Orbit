@@ -1,18 +1,28 @@
-package com.orbit.team.controller;
+package com.orbit.team.controller.page;
 
 import com.orbit.team.dto.request.EventRequest;
+import com.orbit.team.dto.response.AttendeeResponse;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.EventCategory;
+import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.exception.UnauthorizedActionException;
 import com.orbit.team.security.UserSecurity;
+import com.orbit.team.service.CommentService;
 import com.orbit.team.service.EventService;
+import com.orbit.team.service.RsvpService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequestMapping("/events")
@@ -20,23 +30,66 @@ import org.springframework.web.bind.annotation.*;
 public class EventPageController {
 
     private final EventService eventService;
+    private final RsvpService rsvpService;
+    private final CommentService commentService;
 
     @GetMapping
-    public String dashboard(Model model) {
+    public String dashboard(@RequestParam(required = false) String keyword,
+                            @RequestParam(required = false) String city,
+                            @RequestParam(required = false) EventCategory category,
+                            @RequestParam(required = false)
+                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                            Model model) {
 
-        model.addAttribute("events", eventService.getAllEvents());
+        String q = blankToNull(keyword);
+        String cityFilter = blankToNull(city);
+        List<Event> all = eventService.getAllEvents();
+
+        List<Event> events = all.stream()
+                .filter(e -> q == null || contains(e.getTitle(), q) || contains(e.getDescription(), q))
+                .filter(e -> cityFilter == null || cityFilter.equalsIgnoreCase(e.getLocation()))
+                .filter(e -> category == null || e.getCategory() == category)
+                .filter(e -> date == null || e.getEventDateTime().toLocalDate().equals(date))
+                .sorted(Comparator.comparing(Event::getEventDateTime))
+                .toList();
+
+        List<String> cities = all.stream()
+                .map(Event::getLocation)
+                .distinct()
+                .sorted()
+                .toList();
+
+        model.addAttribute("events", events);
+        model.addAttribute("cities", cities);
         model.addAttribute("categories", EventCategory.values());
+
+        model.addAttribute("keyword", q);
+        model.addAttribute("selectedCity", cityFilter);
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("selectedDate", date);
 
         return "events";
     }
 
     @GetMapping("/{id}")
-    public String eventDetail(@PathVariable Long id, @AuthenticationPrincipal UserSecurity currentUser, Model model) {
+    public String eventDetail(@PathVariable Long id,
+                              @AuthenticationPrincipal UserSecurity currentUser,
+                              Model model) {
 
         Event event = eventService.getEventById(id);
+        boolean isOrganizer = event.getOrganizer().getId().equals(currentUser.getId());
 
         model.addAttribute("event", event);
-        model.addAttribute("isOrganizer", event.getOrganizer().getId().equals(currentUser.getId()));
+        model.addAttribute("isOrganizer", isOrganizer);
+
+        if (isOrganizer) {
+            List<AttendeeResponse> attendees = rsvpService.getRsvpsForEvent(id, currentUser.getId());
+            model.addAttribute("attendees", attendees);
+            model.addAttribute("attendeeCount",
+                    attendees.stream().filter(a -> a.getStatus() == RsvpStatus.ATTENDING).count());
+        }
+
+        model.addAttribute("comments", commentService.getCommentsForEvent(id));
 
         return "event_detail";
     }
@@ -123,5 +176,14 @@ public class EventPageController {
         request.setEventDateTime(event.getEventDateTime());
 
         return request;
+    }
+
+    private static String blankToNull(String value) {
+        return (value == null || value.isBlank()) ? null : value;
+    }
+
+    private static boolean contains(String haystack, String needle) {
+        return haystack != null
+                && haystack.toLowerCase(Locale.ROOT).contains(needle.toLowerCase(Locale.ROOT));
     }
 }

@@ -1,4 +1,4 @@
-package com.orbit.team.controller;
+package com.orbit.team.controller.page;
 
 import com.orbit.team.dto.request.CommentRequest;
 import com.orbit.team.security.UserSecurity;
