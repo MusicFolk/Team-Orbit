@@ -73,6 +73,7 @@ public class EventPageController {
 
     @GetMapping("/{id}")
     public String eventDetail(@PathVariable Long id,
+                              @RequestParam(required = false) String rsvpError,
                               @AuthenticationPrincipal UserSecurity currentUser,
                               Model model) {
 
@@ -81,6 +82,7 @@ public class EventPageController {
 
         model.addAttribute("event", event);
         model.addAttribute("isOrganizer", isOrganizer);
+        model.addAttribute("rsvpError", rsvpError);
 
         if (isOrganizer) {
             List<AttendeeResponse> attendees = rsvpService.getRsvpsForEvent(id, currentUser.getId());
