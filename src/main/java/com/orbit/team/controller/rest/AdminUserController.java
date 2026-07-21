@@ -1,4 +1,4 @@
-package com.orbit.team.controller;
+package com.orbit.team.controller.rest;
 
 import com.orbit.team.dto.response.UserResponse;
 import com.orbit.team.service.UserService;

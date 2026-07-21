@@ -1,4 +1,4 @@
-package com.orbit.team.controller;
+package com.orbit.team.controller.rest;
 
 import com.orbit.team.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;

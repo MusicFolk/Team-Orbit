@@ -32,6 +32,7 @@
         <a class="active" th:href="@{/admin/users}">Users</a>
         <a th:href="@{/admin/events}">Events</a>
         <a th:href="@{/admin/comments}">Comments</a>
+        <a th:href="@{/events}" style="margin-left:auto; align-self:center; padding:6px 14px; border:1px solid #CADCFC; background:#eef3fd; color:#1E2761; border-radius:6px;">← Back to App</a>
     </div>
 
     <div class="toolbar">
@@ -44,7 +45,7 @@
         <table>
             <tr><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr>
             <tr th:each="u : ${users}">
-                <td th:text="${u.name}">Name</td>
+                <td th:text="${u.fullName}">Name</td>
                 <td th:text="${u.email}">email@example.com</td>
                 <td>
                     <span class="status-pill" th:classappend="${u.active} ? 'status-active' : 'status-inactive'"
