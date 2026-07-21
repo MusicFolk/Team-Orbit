@@ -5,6 +5,7 @@ import com.orbit.team.entity.Event;
 import com.orbit.team.entity.RSVP;
 import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.entity.User;
+import com.orbit.team.exception.EventFullException;
 import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.exception.RsvpConflictException;
 import com.orbit.team.exception.UnauthorizedActionException;
@@ -49,7 +50,7 @@ public class RsvpServiceTest {
     @BeforeEach
     void setUp() {
         user = User.builder().id(1L).username("ehaaland00").fullName("Erling Haaland").build();
-        event = Event.builder().id(1L).title("Test Event").organizer(user).build();
+        event = Event.builder().id(1L).title("Test Event").organizer(user).capacity(10).build();
         rsvp = RSVP.builder().user(user).event(event).status(RsvpStatus.ATTENDING).build();
     }
 
@@ -116,6 +117,36 @@ public class RsvpServiceTest {
                 .hasMessageContaining("data conflict");
     }
 
+    @Test
+    void createRsvp_shouldThrowEventFullWhenCapacityReached() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        when(rsvpRepository.findByUserAndEvent(user, event)).thenReturn(Optional.empty());
+        when(rsvpRepository.countByEvent_IdAndStatus(1L, RsvpStatus.ATTENDING)).thenReturn(10L);
+
+        assertThatThrownBy(() -> rsvpService.createRsvp(1L, 1L, RsvpStatus.ATTENDING))
+                .isInstanceOf(EventFullException.class)
+                .hasMessageContaining("capacity");
+
+        verify(rsvpRepository, never()).save(any());
+    }
+
+    @Test
+    void createRsvp_shouldAllowNonAttendingStatusWhenCapacityReached() {
+        RSVP maybeRsvp = RSVP.builder().user(user).event(event).status(RsvpStatus.MAYBE).build();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        when(rsvpRepository.findByUserAndEvent(user, event)).thenReturn(Optional.empty());
+        when(rsvpRepository.save(any(RSVP.class))).thenReturn(maybeRsvp);
+
+        AttendeeResponse result = rsvpService.createRsvp(1L, 1L, RsvpStatus.MAYBE);
+
+        assertThat(result.getStatus()).isEqualTo(RsvpStatus.MAYBE);
+        verify(rsvpRepository, never()).countByEvent_IdAndStatus(any(), any());
+        verify(rsvpRepository).save(any(RSVP.class));
+    }
+
     // updateRsvp
     @Test
     void updateRsvp_shouldUpdateStatusWhenExists() {
@@ -172,6 +203,36 @@ public class RsvpServiceTest {
         assertThatThrownBy(() -> rsvpService.updateRsvp(1L, 1L, RsvpStatus.MAYBE))
                 .isInstanceOf(RsvpConflictException.class)
                 .hasMessageContaining("data conflict");
+    }
+
+    @Test
+    void updateRsvp_shouldThrowEventFullWhenTransitioningToAttendingAndCapacityReached() {
+        RSVP maybeRsvp = RSVP.builder().user(user).event(event).status(RsvpStatus.MAYBE).build();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        when(rsvpRepository.findByUserAndEvent(user, event)).thenReturn(Optional.of(maybeRsvp));
+        when(rsvpRepository.countByEvent_IdAndStatus(1L, RsvpStatus.ATTENDING)).thenReturn(10L);
+
+        assertThatThrownBy(() -> rsvpService.updateRsvp(1L, 1L, RsvpStatus.ATTENDING))
+                .isInstanceOf(EventFullException.class)
+                .hasMessageContaining("capacity");
+
+        verify(rsvpRepository, never()).save(any());
+    }
+
+    @Test
+    void updateRsvp_shouldAllowWhenAlreadyAttendingEvenIfCapacityReached() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        when(rsvpRepository.findByUserAndEvent(user, event)).thenReturn(Optional.of(rsvp));
+        when(rsvpRepository.save(any(RSVP.class))).thenReturn(rsvp);
+
+        AttendeeResponse result = rsvpService.updateRsvp(1L, 1L, RsvpStatus.ATTENDING);
+
+        assertThat(result).isNotNull();
+        verify(rsvpRepository, never()).countByEvent_IdAndStatus(any(), any());
+        verify(rsvpRepository).save(rsvp);
     }
 
     // cancelRsvp

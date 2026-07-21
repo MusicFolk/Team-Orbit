@@ -2,6 +2,7 @@ package com.orbit.team.repository;
 
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.RSVP;
+import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -19,4 +20,6 @@ public interface RsvpRepository extends JpaRepository<RSVP, Long> {
     List<RSVP> findByUser_Id(Long userId);
 
     Optional<RSVP> findByUserAndEvent(User user, Event event);
+
+    long countByEvent_IdAndStatus(Long eventId, RsvpStatus status);
 }

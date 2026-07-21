@@ -1,6 +1,7 @@
 package com.orbit.team.controller.page;
 
 import com.orbit.team.entity.RsvpStatus;
+import com.orbit.team.exception.EventFullException;
 import com.orbit.team.exception.RsvpConflictException;
 import com.orbit.team.security.UserSecurity;
 import com.orbit.team.service.RsvpService;
@@ -25,7 +26,13 @@ public class RsvpPageController {
         try {
             rsvpService.createRsvp(currentUser.getId(), id, status);
         } catch (RsvpConflictException ex) {
-            rsvpService.updateRsvp(currentUser.getId(), id, status);
+            try {
+                rsvpService.updateRsvp(currentUser.getId(), id, status);
+            } catch (EventFullException full) {
+                return "redirect:/events/" + id + "?rsvpError=full";
+            }
+        } catch (EventFullException ex) {
+            return "redirect:/events/" + id + "?rsvpError=full";
         }
         return "redirect:/events/" + id;
     }
