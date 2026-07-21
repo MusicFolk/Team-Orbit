@@ -4,7 +4,6 @@ import com.orbit.team.dto.request.EventRequest;
 import com.orbit.team.dto.response.AttendeeResponse;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.EventCategory;
-import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.exception.UnauthorizedActionException;
 import com.orbit.team.security.UserSecurity;
 import com.orbit.team.service.CommentService;
@@ -85,9 +84,8 @@ public class EventPageController {
         model.addAttribute("rsvpError", rsvpError);
 
         if (isOrganizer) {
-            List<AttendeeResponse> attendees = rsvpService.getRsvpsForEvent(id, currentUser.getId()).stream()
-                    .filter(a -> a.getStatus() == RsvpStatus.ATTENDING)
-                    .toList();
+            List<AttendeeResponse> attendees =
+                    rsvpService.getRsvpsForEvent(id, currentUser.getId());
             model.addAttribute("attendees", attendees);
             model.addAttribute("attendeeCount", (long) attendees.size());
         }
