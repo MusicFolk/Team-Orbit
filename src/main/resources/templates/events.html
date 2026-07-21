@@ -76,8 +76,19 @@
         </div>
 
         <div class="filter-field">
-            <label for="date">Date</label>
-            <input type="date" id="date" name="date" th:value="${selectedDate}">
+            <label for="fromDate">From</label>
+            <input type="date"
+                   id="fromDate"
+                   name="fromDate"
+                   th:value="${selectedFromDate}">
+        </div>
+
+        <div class="filter-field">
+            <label for="toDate">To</label>
+            <input type="date"
+                   id="toDate"
+                   name="toDate"
+                   th:value="${selectedToDate}">
         </div>
 
         <button type="submit">Search</button>

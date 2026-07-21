@@ -38,7 +38,11 @@ public class EventPageController {
                             @RequestParam(required = false) String city,
                             @RequestParam(required = false) EventCategory category,
                             @RequestParam(required = false)
-                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+
+                            @RequestParam(required = false)
+                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+
                             Model model) {
 
         String q = blankToNull(keyword);
@@ -49,7 +53,19 @@ public class EventPageController {
                 .filter(e -> q == null || contains(e.getTitle(), q) || contains(e.getDescription(), q))
                 .filter(e -> cityFilter == null || cityFilter.equalsIgnoreCase(e.getLocation()))
                 .filter(e -> category == null || e.getCategory() == category)
-                .filter(e -> date == null || e.getEventDateTime().toLocalDate().equals(date))
+                .filter(e -> {
+                    LocalDate eventDate = e.getEventDateTime().toLocalDate();
+
+                    if (fromDate != null && eventDate.isBefore(fromDate)) {
+                        return false;
+                    }
+
+                    if (toDate != null && eventDate.isAfter(toDate)) {
+                        return false;
+                    }
+
+                    return true;
+                })
                 .sorted(Comparator.comparing(Event::getEventDateTime))
                 .toList();
 
@@ -66,7 +82,8 @@ public class EventPageController {
         model.addAttribute("keyword", q);
         model.addAttribute("selectedCity", cityFilter);
         model.addAttribute("selectedCategory", category);
-        model.addAttribute("selectedDate", date);
+        model.addAttribute("selectedFromDate", fromDate);
+        model.addAttribute("selectedToDate", toDate);
 
         return "events";
     }
