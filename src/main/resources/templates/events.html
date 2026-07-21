@@ -11,8 +11,7 @@
         .filter-bar { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; background:#fff; border:1px solid #e1e4ec; border-radius:10px; padding:16px; margin-bottom:24px; }
         .filter-field { flex:1; min-width:140px; }
         .filter-field label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; }
-        .filter-field input,
-        .filter-field select { width:100%; padding:10px 12px; border:1px solid #e1e4ec; border-radius:6px; font-size:14px; box-sizing:border-box; }
+        .filter-field input, .filter-field select { width:100%; padding:10px 12px; border:1px solid #e1e4ec; border-radius:6px; font-size:14px; box-sizing:border-box; }
         .filter-bar button { height:40px; padding:0 18px; background:#1E2761; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer; }
         .event-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:18px; }
         .event-card { background:#fff; border:1px solid #e1e4ec; border-radius:10px; overflow:hidden; text-decoration:none; color:inherit; display:block; }
@@ -27,7 +26,6 @@
 <body>
 
 <div class="wrap">
-
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h1 style="margin:0;">Browse Events</h1>
         <div style="display:flex; gap:10px;">
@@ -53,72 +51,44 @@
             <label for="keyword">Keyword</label>
             <input type="text" id="keyword" name="keyword" th:value="${keyword}" placeholder="Search events...">
         </div>
-
         <div class="filter-field">
             <label for="city">City</label>
             <select id="city" name="city">
                 <option value="">Any city</option>
-                <option th:each="c : ${cities}"
-                        th:value="${c}"
-                        th:text="${c}"
-                        th:selected="${c == selectedCity}">
-                </option>
+                <option th:each="c : ${cities}" th:value="${c}" th:text="${c}"
+                        th:selected="${c == selectedCity}"></option>
             </select>
         </div>
-
         <div class="filter-field">
             <label for="category">Category</label>
             <select id="category" name="category">
                 <option value="">Any category</option>
-                <option th:each="cat : ${categories}"
-                        th:value="${cat}"
-                        th:text="${cat}"
-                        th:selected="${cat == selectedCategory}">
-                </option>
+                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"
+                        th:selected="${cat == selectedCategory}"></option>
             </select>
         </div>
-
         <div class="filter-field">
             <label for="date">Date</label>
             <input type="date" id="date" name="date" th:value="${selectedDate}">
         </div>
-
         <button type="submit">Search</button>
     </form>
 
     <div class="event-grid" th:if="${not #lists.isEmpty(events)}">
-        <a class="event-card"
-           th:each="event : ${events}"
-           th:href="@{/events/{id}(id=${event.id})}">
-
+        <a class="event-card" th:each="event : ${events}" th:href="@{/events/{id}(id=${event.id})}">
             <div class="event-thumb"></div>
-
             <div class="event-card-body">
                 <span class="tag" th:text="${event.category}">Category</span>
-
-                <div class="event-card-title"
-                     th:text="${event.title}">
-                    Event Title
-                </div>
-
+                <div class="event-card-title" th:text="${event.title}">Event Title</div>
                 <div class="event-card-meta">
-                    <span th:text="${event.eventDateTime.toLocalDate()} + ' · ' + ${event.eventDateTime.toLocalTime()}">
-                        Date · Time
-                    </span>
-                    <br>
-                    <span th:text="${event.location}">
-                        Location
-                    </span>
+                    <span th:text="${event.eventDateTime.toLocalDate()} + ' · ' + ${event.eventDateTime.toLocalTime()}">Date · Time</span>
+                    <span th:text="${event.location}">Location</span>
                 </div>
             </div>
-
         </a>
     </div>
 
-    <p class="empty" th:if="${#lists.isEmpty(events)}">
-        No events match your filters.
-    </p>
-
+    <p class="empty" th:if="${#lists.isEmpty(events)}">No events match your filters.</p>
 </div>
 
 </body>
