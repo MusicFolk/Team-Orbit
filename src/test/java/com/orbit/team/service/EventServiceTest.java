@@ -6,7 +6,9 @@ import com.orbit.team.entity.EventCategory;
 import com.orbit.team.entity.User;
 import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.exception.UnauthorizedActionException;
+import com.orbit.team.repository.CommentRepository;
 import com.orbit.team.repository.EventRepository;
+import com.orbit.team.repository.RsvpRepository;
 import com.orbit.team.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,12 @@ public class EventServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RsvpRepository rsvpRepository;
+
+    @Mock
+    private CommentRepository commentRepository;
 
     @InjectMocks
     private EventService eventService;
@@ -126,12 +134,15 @@ public class EventServiceTest {
 
     @Test
     void deleteEvent_shouldSucceedForOrganizer() {
-
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        when(rsvpRepository.findByEvent(event)).thenReturn(List.of());
+        when(commentRepository.findByEventOrderByCreatedAtAsc(event)).thenReturn(List.of());
 
         eventService.deleteEvent(1L, 1L);
 
         verify(eventRepository).delete(event);
+        verify(rsvpRepository).deleteAll(List.of());
+        verify(commentRepository).deleteAll(List.of());
     }
 
     @Test
