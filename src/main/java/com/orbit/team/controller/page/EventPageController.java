@@ -89,6 +89,7 @@ public class EventPageController {
                     attendees.stream().filter(a -> a.getStatus() == RsvpStatus.ATTENDING).count());
         }
 
+        model.addAttribute("currentUserId", currentUser.getId());
         model.addAttribute("comments", commentService.getCommentsForEvent(id));
 
         return "event_detail";
