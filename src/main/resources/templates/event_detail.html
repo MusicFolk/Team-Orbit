@@ -85,8 +85,7 @@
 
     <div class="card">
       <ul class="meta-list">
-        <li><span class="k">Date &amp; Time</span><span class="v"
-                                                        th:text="${event.eventDateTime.toLocalDate()} + ' · ' + ${event.eventDateTime.toLocalTime()}">Date · Time</span></li>
+        <li><span class="k">Date &amp; Time</span><span class="v" th:text="${#temporals.format(event.eventDateTime, 'dd/MM/yyyy · HH:mm')}">Date · Time</span></li>
         <li><span class="k">Location</span><span class="v" th:text="${event.location}">Location</span></li>
         <li><span class="k">Capacity</span><span class="v"
                                                  th:text="${(attendeeCount != null ? attendeeCount + ' / ' : '') + event.capacity}">0 / 0</span></li>
