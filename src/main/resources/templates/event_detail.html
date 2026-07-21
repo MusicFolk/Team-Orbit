@@ -121,7 +121,7 @@
         <div class="comment" th:each="c : ${comments}">
           <div class="comment-head">
             <span th:text="${c.username}">username</span>
-            <span class="comment-time" th:text="${c.createdAt}">timestamp</span>
+            <span class="comment-time" th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy, HH:mm')}">timestamp</span>
           </div>
           <div class="comment-body" th:text="${c.content}">Comment text.</div>
         </div>
