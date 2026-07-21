@@ -85,10 +85,11 @@ public class EventPageController {
         model.addAttribute("rsvpError", rsvpError);
 
         if (isOrganizer) {
-            List<AttendeeResponse> attendees = rsvpService.getRsvpsForEvent(id, currentUser.getId());
+            List<AttendeeResponse> attendees = rsvpService.getRsvpsForEvent(id, currentUser.getId()).stream()
+                    .filter(a -> a.getStatus() == RsvpStatus.ATTENDING)
+                    .toList();
             model.addAttribute("attendees", attendees);
-            model.addAttribute("attendeeCount",
-                    attendees.stream().filter(a -> a.getStatus() == RsvpStatus.ATTENDING).count());
+            model.addAttribute("attendeeCount", (long) attendees.size());
         }
 
         model.addAttribute("comments", commentService.getCommentsForEvent(id));
