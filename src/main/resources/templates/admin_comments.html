@@ -11,6 +11,9 @@
         .tab-bar a { padding:10px 16px; font-size:13.5px; font-weight:600; color:#6b6f80; text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px; }
         .tab-bar a.active { color:#1E2761; border-bottom:2px solid #1E2761; }
         .empty-note { font-size:12px; color:#6b6f80; background:#fffbe8; border:1px solid #f2e5a8; padding:10px 14px; border-radius:8px; margin-bottom:20px; }
+        .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+        .toolbar input { width:220px; padding:8px 12px; border:1px solid #e1e4ec; border-radius:6px; font-size:13.5px; }
+        .toolbar select { padding:8px 12px; border:1px solid #e1e4ec; border-radius:6px; font-size:13.5px; background:#fff; }
         .card { background:#fff; border:1px solid #e1e4ec; border-radius:10px; overflow:hidden; }
         table { width:100%; border-collapse:collapse; font-size:13.5px; }
         th { text-align:left; background:#1E2761; color:#fff; padding:10px 14px; font-size:12px; text-transform:uppercase; }
@@ -26,9 +29,31 @@
 <div class="wrap">
     <h1>Admin Dashboard</h1>
     <div class="tab-bar">
-        <a th:href="@{/api/admin/users}">Users</a>
-        <a th:href="@{/api/admin/events}">Events</a>
-        <a class="active" th:href="@{/api/admin/comments}">Comments</a>
+        <a th:href="@{/admin/users}">Users</a>
+        <a th:href="@{/admin/events}">Events</a>
+        <a class="active" th:href="@{/admin/comments}">Comments</a>
+        <a th:href="@{/events}" style="margin-left:auto; align-self:center; padding:6px 14px; border:1px solid #CADCFC; background:#eef3fd; color:#1E2761; border-radius:6px;">← Back to App</a>
+    </div>
+
+    <div class="toolbar">
+        <form th:action="@{/admin/comments}" method="get" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <input type="text" name="search" th:value="${param.search}" placeholder="Search comments...">
+            <select name="userId" onchange="this.form.submit()">
+                <option value="">All users</option>
+                <option th:each="u : ${filterUsers}"
+                        th:value="${u.id}"
+                        th:text="${u.fullName}"
+                        th:selected="${selectedUserId != null and selectedUserId == u.id}">User</option>
+            </select>
+            <select name="eventId" onchange="this.form.submit()">
+                <option value="">All events</option>
+                <option th:each="ev : ${filterEvents}"
+                        th:value="${ev.id}"
+                        th:text="${ev.title}"
+                        th:selected="${selectedEventId != null and selectedEventId == ev.id}">Event</option>
+            </select>
+            <button type="submit" class="btn-sm" style="background:#eef3fd; color:#1E2761; border:1px solid #CADCFC;">Filter</button>
+        </form>
     </div>
 
     <div class="empty-note">Comments flagged by users appear here for review.</div>
@@ -37,11 +62,11 @@
         <table th:if="${not #lists.isEmpty(comments)}">
             <tr><th>Author</th><th>Event</th><th>Comment</th><th>Actions</th></tr>
             <tr th:each="c : ${comments}">
-                <td th:text="${c.authorName}">Author</td>
-                <td th:text="${c.eventTitle}">Event</td>
-                <td th:text="${c.text}">Comment text</td>
+                <td th:text="${c.user.fullName}">Author</td>
+                <td th:text="${c.event.title}">Event</td>
+                <td th:text="${c.content}">Comment text</td>
                 <td>
-                    <form th:action="@{/api/admin/comments/{id}(id=${c.id})}" method="post">
+                    <form th:action="@{/admin/comments/{id}(id=${c.id})}" method="post">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                         <input type="hidden" name="_method" value="delete"/>
                         <button type="submit" class="btn-sm btn-danger">Remove</button>
