@@ -43,4 +43,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ex.getMessage());
     }
+
+    @ResponseBody
+    @ExceptionHandler(EventFullException.class)
+    public ResponseEntity<String> handleEventFull(EventFullException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
 }

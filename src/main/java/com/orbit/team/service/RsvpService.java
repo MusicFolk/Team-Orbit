@@ -5,6 +5,7 @@ import com.orbit.team.entity.Event;
 import com.orbit.team.entity.RSVP;
 import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.entity.User;
+import com.orbit.team.exception.EventFullException;
 import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.exception.RsvpConflictException;
 import com.orbit.team.exception.UnauthorizedActionException;
@@ -36,6 +37,13 @@ public class RsvpService {
             throw new RsvpConflictException("RSVP already exists for this event");
         }
 
+        if (status == RsvpStatus.ATTENDING) {
+            long attendingCount = rsvpRepository.countByEvent_IdAndStatus(eventId, RsvpStatus.ATTENDING);
+            if (attendingCount >= event.getCapacity()) {
+                throw new EventFullException("Event has reached its attendee capacity");
+            }
+        }
+
         RSVP rsvp = RSVP.builder()
                 .user(user)
                 .event(event)
@@ -57,6 +65,13 @@ public class RsvpService {
 
         RSVP rsvp = rsvpRepository.findByUserAndEvent(user, event)
                 .orElseThrow(() -> new ResourceNotFoundException("No existing RSVP to update for this event"));
+
+        if (status == RsvpStatus.ATTENDING && rsvp.getStatus() != RsvpStatus.ATTENDING) {
+            long attendingCount = rsvpRepository.countByEvent_IdAndStatus(eventId, RsvpStatus.ATTENDING);
+            if (attendingCount >= event.getCapacity()) {
+                throw new EventFullException("Event has reached its attendee capacity");
+            }
+        }
 
         rsvp.setStatus(status);
 

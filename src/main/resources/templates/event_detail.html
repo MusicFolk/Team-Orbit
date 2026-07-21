@@ -42,6 +42,7 @@
     .comment-body { font-size:13.5px; margin-top:4px; }
     .comment-form textarea { width:100%; padding:10px 12px; border:1px solid #e1e4ec; border-radius:6px; font-family:inherit; font-size:14px; box-sizing:border-box; resize:vertical; }
     .comment-form button { margin-top:10px; background:#1E2761; color:#fff; border:none; border-radius:6px; padding:10px 18px; font-weight:600; font-size:14px; cursor:pointer; }
+    .alert-error { background:#fdeceb; color:#c94a4a; border:1px solid #f3c8c4; border-radius:8px; padding:12px 16px; font-size:13.5px; font-weight:600; margin-bottom:16px; }
   </style>
 </head>
 <body>
@@ -50,6 +51,10 @@
   <div class="breadcrumb"><a th:href="@{/events}">&larr; Back to events</a></div>
   <h1 th:text="${event.title}">Event Title</h1>
   <div class="hero"></div>
+
+  <p class="alert-error" th:if="${rsvpError == 'full'}">
+    This event has reached its capacity. You can no longer RSVP as Attending.
+  </p>
 
   <div class="grid">
     <div class="card">
