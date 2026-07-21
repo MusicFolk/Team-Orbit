@@ -1,6 +1,8 @@
 package com.orbit.team.controller;
 
 import com.orbit.team.dto.request.RegisterRequest;
+import com.orbit.team.exception.DuplicateEmailException;
+import com.orbit.team.exception.DuplicateUsernameException;
 import com.orbit.team.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +37,8 @@ public class AuthController {
         }
         try {
             userService.registerUser(registerForm);
-        } catch (IllegalArgumentException illegalArgumentException) {
-            model.addAttribute("registrationError", illegalArgumentException.getMessage());
+        } catch (DuplicateUsernameException | DuplicateEmailException ex) {
+            model.addAttribute("registrationError", ex.getMessage());
             return "register";
         }
         return "redirect:/api/auth/login";
