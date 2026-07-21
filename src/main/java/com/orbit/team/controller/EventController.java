@@ -7,6 +7,9 @@ import com.orbit.team.entity.Event;
 import com.orbit.team.security.UserSecurity;
 import com.orbit.team.service.EventService;
 import com.orbit.team.service.RsvpService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,11 +22,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/events")
 @RequiredArgsConstructor
+@Tag(name = "Events")
 public class EventController {
 
     private final EventService eventService;
     private final RsvpService rsvpService;
 
+    @Operation(summary = "Get all events")
+    @ApiResponse(responseCode = "200", description = "List of events returned")
     @GetMapping
     public List<EventResponse> getAllEvents() {
         return eventService.getAllEvents().stream()
@@ -31,11 +37,17 @@ public class EventController {
                 .collect(Collectors.toList());
     }
 
+    @Operation(summary = "Get a single event by ID")
+    @ApiResponse(responseCode = "200", description = "Event found")
+    @ApiResponse(responseCode = "404", description = "Event not found")
     @GetMapping("/{id}")
     public EventResponse getEventById(@PathVariable Long id) {
         return toResponse(eventService.getEventById(id));
     }
 
+    @Operation(summary = "Create a new event")
+    @ApiResponse(responseCode = "201", description = "Event created successfully")
+    @ApiResponse(responseCode = "400", description = "Validation error")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventResponse createEvent(@Valid @RequestBody EventRequest request,
@@ -44,6 +56,11 @@ public class EventController {
         return toResponse(event);
     }
 
+    @Operation(summary = "Update an existing event")
+    @ApiResponse(responseCode = "200", description = "Event updated successfully")
+    @ApiResponse(responseCode = "400", description = "Validation error")
+    @ApiResponse(responseCode = "403", description = "Only the organizer can edit this event")
+    @ApiResponse(responseCode = "404", description = "Event not found")
     @PutMapping("/{id}")
     public EventResponse updateEvent(@PathVariable Long id,
                                      @Valid @RequestBody EventRequest request,
@@ -52,6 +69,10 @@ public class EventController {
         return toResponse(event);
     }
 
+    @Operation(summary = "Delete an event")
+    @ApiResponse(responseCode = "204", description = "Event deleted successfully")
+    @ApiResponse(responseCode = "403", description = "Only the organizer can delete this event")
+    @ApiResponse(responseCode = "404", description = "Event not found")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEvent(@PathVariable Long id,
@@ -72,6 +93,10 @@ public class EventController {
         return response;
     }
 
+    @Operation(summary = "Get attendee list for an event")
+    @ApiResponse(responseCode = "200", description = "Attendee list returned")
+    @ApiResponse(responseCode = "403", description = "Only the organizer can view the attendee list")
+    @ApiResponse(responseCode = "404", description = "Event not found")
     @GetMapping("/{id}/attendees")
     public List<AttendeeResponse> getAttendees(@PathVariable Long id, @AuthenticationPrincipal UserSecurity userSecurity) {
         return rsvpService.getRsvpsForEvent(id, userSecurity.getId());
