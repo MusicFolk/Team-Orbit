@@ -97,7 +97,7 @@
     You have been logged out.
   </div>
 
-  <form th:action="@{/api/auth/login}" method="post">
+  <form th:action="@{/login}" method="post">
     <!-- CSRF token required by default when Spring Security is on the classpath -->
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
@@ -110,7 +110,7 @@
     <button type="submit">Log In</button>
   </form>
 
-  <p class="helper">Don't have an account? <a th:href="@{/api/auth/register}">Register</a></p>
+  <p class="helper">Don't have an account? <a th:href="@{/register}">Register</a></p>
 </div>
 
 </body>

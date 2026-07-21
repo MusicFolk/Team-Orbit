@@ -19,18 +19,18 @@ public class AuthController {
 
     private final UserService userService;
 
-    @GetMapping("/api/auth/login")
+    @GetMapping("/login")
     public String loginPage() {
         return "login";
     }
 
-    @GetMapping("/api/auth/register")
+    @GetMapping("/register")
     public String registerPage(Model model) {
         model.addAttribute("registerForm", new RegisterRequest());
         return "register";
     }
 
-    @PostMapping("/api/auth/register")
+    @PostMapping("/register")
     public String register(@Valid @ModelAttribute("registerForm") RegisterRequest registerForm, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             return "register";
@@ -41,6 +41,6 @@ public class AuthController {
             model.addAttribute("registrationError", ex.getMessage());
             return "register";
         }
-        return "redirect:/api/auth/login";
+        return "redirect:/login";
     }
 }
