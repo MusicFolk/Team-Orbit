@@ -56,15 +56,15 @@ public class CommentService {
 
     public void deleteComment(Long commentId, Long userId) {
 
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (user.getRole() != Role.ADMIN) {
-            throw new UnauthorizedActionException("Only admins can delete comments");
+        if (!comment.getUser().getId().equals(userId) && user.getRole() != Role.ADMIN) {
+            throw new UnauthorizedActionException("You are not allowed to delete this comment");
         }
-
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
 
         commentRepository.delete(comment);
     }

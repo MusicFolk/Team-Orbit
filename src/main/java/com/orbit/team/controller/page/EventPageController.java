@@ -92,6 +92,7 @@ public class EventPageController {
             model.addAttribute("attendeeCount", (long) attendees.size());
         }
 
+        model.addAttribute("currentUserId", currentUser.getId());
         model.addAttribute("comments", commentService.getCommentsForEvent(id));
 
         return "event_detail";

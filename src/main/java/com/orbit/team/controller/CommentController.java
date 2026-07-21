@@ -33,4 +33,14 @@ public class CommentController {
     public List<CommentResponse> getComments(@PathVariable Long eventId) {
         return commentService.getCommentsForEvent(eventId);
     }
+
+    @DeleteMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(
+            @PathVariable Long eventId,
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal UserSecurity userSecurity) {
+
+        commentService.deleteComment(commentId, userSecurity.getId());
+    }
 }
