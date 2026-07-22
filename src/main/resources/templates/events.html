@@ -93,6 +93,10 @@
 
         <button type="submit">Search</button>
     </form>
+    <p th:if="${error}"
+       style="color: #dc3545; font-weight: 600; margin-bottom: 20px;"
+       th:text="${error}">
+    </p>
 
     <div class="event-grid" th:if="${not #lists.isEmpty(events)}">
         <a class="event-card"

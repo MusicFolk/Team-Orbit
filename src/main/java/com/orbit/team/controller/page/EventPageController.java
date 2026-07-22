@@ -47,7 +47,28 @@ public class EventPageController {
         String q = blankToNull(keyword);
         String cityFilter = blankToNull(city);
         List<Event> all = eventService.getAllEvents();
+        if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
 
+            List<String> cities = all.stream()
+                    .map(Event::getLocation)
+                    .distinct()
+                    .sorted()
+                    .toList();
+
+            model.addAttribute("events", List.of());
+            model.addAttribute("cities", cities);
+            model.addAttribute("categories", EventCategory.values());
+
+            model.addAttribute("keyword", q);
+            model.addAttribute("selectedCity", cityFilter);
+            model.addAttribute("selectedCategory", category);
+            model.addAttribute("selectedFromDate", fromDate);
+            model.addAttribute("selectedToDate", toDate);
+
+            model.addAttribute("error", "From date must be before or equal to To date.");
+
+            return "events";
+        }
         List<Event> events = all.stream()
                 .filter(e -> q == null || contains(e.getTitle(), q) || contains(e.getDescription(), q))
                 .filter(e -> cityFilter == null || cityFilter.equalsIgnoreCase(e.getLocation()))
