@@ -68,11 +68,26 @@
             </select>
         </div>
         <div class="filter-field">
-            <label for="date">Date</label>
-            <input type="date" id="date" name="date" th:value="${selectedDate}">
+            <label for="fromDate">From</label>
+            <input type="date"
+                   id="fromDate"
+                   name="fromDate"
+                   th:value="${selectedFromDate}">
+        </div>
+
+        <div class="filter-field">
+            <label for="toDate">To</label>
+            <input type="date"
+                   id="toDate"
+                   name="toDate"
+                   th:value="${selectedToDate}">
         </div>
         <button type="submit">Search</button>
     </form>
+    <p th:if="${error}"
+       style="color: #dc3545; font-weight: 600; margin-bottom: 20px;"
+       th:text="${error}">
+    </p>
 
     <div class="event-grid" th:if="${not #lists.isEmpty(events)}">
         <a class="event-card" th:each="event : ${events}" th:href="@{/events/{id}(id=${event.id})}">

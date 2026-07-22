@@ -4,7 +4,6 @@ import com.orbit.team.dto.request.EventRequest;
 import com.orbit.team.dto.response.AttendeeResponse;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.EventCategory;
-import com.orbit.team.entity.RsvpStatus;
 import com.orbit.team.exception.UnauthorizedActionException;
 import com.orbit.team.security.UserSecurity;
 import com.orbit.team.service.CommentService;
@@ -37,19 +36,56 @@ public class EventPageController {
     public String dashboard(@RequestParam(required = false) String keyword,
                             @RequestParam(required = false) String city,
                             @RequestParam(required = false) EventCategory category,
-                            @RequestParam(required = false)
-                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+
+                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+
+
+                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+
                             Model model) {
 
         String q = blankToNull(keyword);
         String cityFilter = blankToNull(city);
         List<Event> all = eventService.getAllEvents();
+        if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
 
+            List<String> cities = all.stream()
+                    .map(Event::getLocation)
+                    .distinct()
+                    .sorted()
+                    .toList();
+
+            model.addAttribute("events", List.of());
+            model.addAttribute("cities", cities);
+            model.addAttribute("categories", EventCategory.values());
+
+            model.addAttribute("keyword", q);
+            model.addAttribute("selectedCity", cityFilter);
+            model.addAttribute("selectedCategory", category);
+            model.addAttribute("selectedFromDate", fromDate);
+            model.addAttribute("selectedToDate", toDate);
+
+            model.addAttribute("error", "From date must be before or equal to To date.");
+
+            return "events";
+        }
         List<Event> events = all.stream()
                 .filter(e -> q == null || contains(e.getTitle(), q) || contains(e.getDescription(), q))
                 .filter(e -> cityFilter == null || cityFilter.equalsIgnoreCase(e.getLocation()))
                 .filter(e -> category == null || e.getCategory() == category)
-                .filter(e -> date == null || e.getEventDateTime().toLocalDate().equals(date))
+                .filter(e -> {
+                    LocalDate eventDate = e.getEventDateTime().toLocalDate();
+
+                    if (fromDate != null && eventDate.isBefore(fromDate)) {
+                        return false;
+                    }
+
+                    if (toDate != null && eventDate.isAfter(toDate)) {
+                        return false;
+                    }
+
+                    return true;
+                })
                 .sorted(Comparator.comparing(Event::getEventDateTime))
                 .toList();
 
@@ -66,7 +102,8 @@ public class EventPageController {
         model.addAttribute("keyword", q);
         model.addAttribute("selectedCity", cityFilter);
         model.addAttribute("selectedCategory", category);
-        model.addAttribute("selectedDate", date);
+        model.addAttribute("selectedFromDate", fromDate);
+        model.addAttribute("selectedToDate", toDate);
 
         return "events";
     }
@@ -85,9 +122,8 @@ public class EventPageController {
         model.addAttribute("rsvpError", rsvpError);
 
         if (isOrganizer) {
-            List<AttendeeResponse> attendees = rsvpService.getRsvpsForEvent(id, currentUser.getId()).stream()
-                    .filter(a -> a.getStatus() == RsvpStatus.ATTENDING)
-                    .toList();
+            List<AttendeeResponse> attendees =
+                    rsvpService.getRsvpsForEvent(id, currentUser.getId());
             model.addAttribute("attendees", attendees);
             model.addAttribute("attendeeCount", (long) attendees.size());
         }
