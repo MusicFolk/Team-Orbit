@@ -299,14 +299,4 @@ public class RsvpServiceTest {
         verify(rsvpRepository, never()).findByEvent_Id(any());
     }
 
-    // getRsvpsForUser
-    @Test
-    void getRsvpsForUser_shouldReturnList() {
-        when(rsvpRepository.findByUser_Id(1L)).thenReturn(List.of(rsvp));
-
-        List<AttendeeResponse> result = rsvpService.getRsvpsForUser(1L);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getUserId()).isEqualTo(1L);
-    }
 }

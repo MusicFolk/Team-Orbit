@@ -24,30 +24,8 @@ public class AdminService {
         return userRepository.findAll();
     }
 
-    public User deactivateUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
-
-        user.setActive(false);
-        return userRepository.save(user);
-    }
-
-    public void deleteUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("User not found: " + userId);
-        }
-        userRepository.deleteById(userId);
-    }
-
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
-    }
-
-    public void deleteEvent(Long eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            throw new ResourceNotFoundException("Event not found: " + eventId);
-        }
-        eventRepository.deleteById(eventId);
     }
 
     public List<Comment> getAllComments() {

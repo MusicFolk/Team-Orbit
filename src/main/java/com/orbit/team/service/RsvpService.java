@@ -105,12 +105,6 @@ public class RsvpService {
                 .collect(Collectors.toList());
     }
 
-    public List<AttendeeResponse> getRsvpsForUser(Long userId) {
-        return rsvpRepository.findByUser_Id(userId).stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
-
     private AttendeeResponse toResponse(RSVP rsvp) {
         AttendeeResponse response = new AttendeeResponse();
         response.setUserId(rsvp.getUser().getId());

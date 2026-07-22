@@ -55,12 +55,6 @@ public class UserService {
         return userResponse(user);
     }
 
-    public UserResponse getByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
-        return userResponse(user);
-    }
-
     public List<UserResponse> getAllUsers(){
         return userRepository.findAll().stream().map(this::userResponse).toList();
     }

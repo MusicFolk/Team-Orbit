@@ -1,7 +1,6 @@
 package com.orbit.team.security;
 
 import com.orbit.team.entity.User;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,10 +14,6 @@ public class UserSecurity implements UserDetails {
 
     public UserSecurity(User user) {
         this.user = user;
-    }
-
-    public User getUser() {
-        return user;
     }
 
     public Long getId() {

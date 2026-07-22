@@ -121,24 +121,4 @@ public class UserServiceTest {
                 .hasMessageContaining("User not found");
     }
 
-    @Test
-    void getByUsername_shouldReturnUser() {
-
-        when(userRepository.findByUsername("john")).thenReturn(Optional.of(user));
-
-        UserResponse response = userService.getByUsername("john");
-
-        assertThat(response).isNotNull();
-        assertThat(response.getUsername()).isEqualTo("john");
-    }
-
-    @Test
-    void getByUsername_shouldThrowWhenUserNotFound() {
-
-        when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> userService.getByUsername("unknown"))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("User not found");
-    }
 }
