@@ -25,6 +25,7 @@ public class AdminCommentController {
 
     @Operation(summary = "Get all comments for an event as admin")
     @ApiResponse(responseCode = "200", description = "Comments returned successfully")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
     @ApiResponse(responseCode = "403", description = "Requires ADMIN role")
     @ApiResponse(responseCode = "404", description = "Event not found")
     @GetMapping("/{eventId}")
@@ -34,6 +35,7 @@ public class AdminCommentController {
 
     @Operation(summary = "Delete a comment as admin")
     @ApiResponse(responseCode = "204", description = "Comment deleted successfully")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
     @ApiResponse(responseCode = "403", description = "Requires ADMIN role")
     @ApiResponse(responseCode = "404", description = "Comment or user not found")
     @DeleteMapping("/{id}")

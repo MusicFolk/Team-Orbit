@@ -26,6 +26,7 @@ public class CommentController {
     @Operation(summary = "Add comment to an event")
     @ApiResponse(responseCode = "201", description = "Comment created successfully")
     @ApiResponse(responseCode = "400", description = "Validation error")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
     @ApiResponse(responseCode = "404", description = "Event not found")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -45,6 +46,11 @@ public class CommentController {
         return commentService.getCommentsForEvent(eventId);
     }
 
+    @Operation(summary = "Delete a comment")
+    @ApiResponse(responseCode = "204", description = "Comment deleted successfully")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
+    @ApiResponse(responseCode = "403", description = "Only the comment author and admin can delete comments")
+    @ApiResponse(responseCode = "404", description = "Comment or user not found")
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(

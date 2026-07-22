@@ -48,6 +48,7 @@ public class EventController {
     @Operation(summary = "Create a new event")
     @ApiResponse(responseCode = "201", description = "Event created successfully")
     @ApiResponse(responseCode = "400", description = "Validation error")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventResponse createEvent(@Valid @RequestBody EventRequest request,
@@ -59,6 +60,7 @@ public class EventController {
     @Operation(summary = "Update an existing event")
     @ApiResponse(responseCode = "200", description = "Event updated successfully")
     @ApiResponse(responseCode = "400", description = "Validation error")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
     @ApiResponse(responseCode = "403", description = "Only the organizer can edit this event")
     @ApiResponse(responseCode = "404", description = "Event not found")
     @PutMapping("/{id}")
@@ -71,7 +73,8 @@ public class EventController {
 
     @Operation(summary = "Delete an event")
     @ApiResponse(responseCode = "204", description = "Event deleted successfully")
-    @ApiResponse(responseCode = "403", description = "Only the organizer can delete this event")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
+    @ApiResponse(responseCode = "403", description = "Admin and organizer can delete this event")
     @ApiResponse(responseCode = "404", description = "Event not found")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -95,6 +98,7 @@ public class EventController {
 
     @Operation(summary = "Get attendee list for an event")
     @ApiResponse(responseCode = "200", description = "Attendee list returned")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
     @ApiResponse(responseCode = "403", description = "Only the organizer can view the attendee list")
     @ApiResponse(responseCode = "404", description = "Event not found")
     @GetMapping("/{id}/attendees")

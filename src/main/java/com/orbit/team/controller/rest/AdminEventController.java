@@ -20,6 +20,7 @@ public class AdminEventController {
 
     @Operation(summary = "Delete an event as admin")
     @ApiResponse(responseCode = "204", description = "Event deleted successfully")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
     @ApiResponse(responseCode = "403", description = "Requires ADMIN role")
     @ApiResponse(responseCode = "404", description = "Event not found")
     @DeleteMapping("/{id}")
