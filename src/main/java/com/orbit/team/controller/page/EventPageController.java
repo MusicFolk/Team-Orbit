@@ -36,10 +36,10 @@ public class EventPageController {
     public String dashboard(@RequestParam(required = false) String keyword,
                             @RequestParam(required = false) String city,
                             @RequestParam(required = false) EventCategory category,
-                            @RequestParam(required = false)
+
                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 
-                            @RequestParam(required = false)
+
                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 
                             Model model) {
