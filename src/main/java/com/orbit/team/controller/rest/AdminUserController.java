@@ -21,6 +21,7 @@ public class AdminUserController {
 
     @Operation(summary = "Get all users as admin")
     @ApiResponse(responseCode = "200", description = "User list returned successfully")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
     @ApiResponse(responseCode = "403", description = "Requires ADMIN role")
     @GetMapping
     public List<UserResponse> getAllUsers() {
@@ -29,6 +30,7 @@ public class AdminUserController {
 
     @Operation(summary = "Activate or deactivate a user as admin")
     @ApiResponse(responseCode = "200", description = "User status updated successfully")
+    @ApiResponse(responseCode = "401", description = "Authentication required")
     @ApiResponse(responseCode = "403", description = "Requires ADMIN role")
     @ApiResponse(responseCode = "404", description = "User not found")
     @PatchMapping("/{id}/status")
