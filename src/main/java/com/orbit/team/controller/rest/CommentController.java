@@ -49,7 +49,7 @@ public class CommentController {
     @Operation(summary = "Delete a comment")
     @ApiResponse(responseCode = "204", description = "Comment deleted successfully")
     @ApiResponse(responseCode = "401", description = "Authentication required")
-    @ApiResponse(responseCode = "403", description = "Only admins can delete comments")
+    @ApiResponse(responseCode = "403", description = "Only the comment author and admin can delete comments")
     @ApiResponse(responseCode = "404", description = "Comment or user not found")
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

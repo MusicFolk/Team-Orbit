@@ -74,7 +74,7 @@ public class EventController {
     @Operation(summary = "Delete an event")
     @ApiResponse(responseCode = "204", description = "Event deleted successfully")
     @ApiResponse(responseCode = "401", description = "Authentication required")
-    @ApiResponse(responseCode = "403", description = "Only the organizer can delete this event")
+    @ApiResponse(responseCode = "403", description = "Admin and organizer can delete this event")
     @ApiResponse(responseCode = "404", description = "Event not found")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
