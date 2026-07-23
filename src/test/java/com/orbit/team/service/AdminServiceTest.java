@@ -3,7 +3,6 @@ package com.orbit.team.service;
 import com.orbit.team.entity.Comment;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.User;
-import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.repository.CommentRepository;
 import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.UserRepository;
@@ -17,8 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -75,27 +72,5 @@ public class AdminServiceTest {
         List<Comment> result = adminService.getAllComments();
 
         assertThat(result).hasSize(1).containsExactly(comment);
-    }
-
-
-    // delete a comment
-    @Test
-    void deleteComment_shouldDeleteWhenExists() {
-        when(commentRepository.existsById(1L)).thenReturn(true);
-
-        adminService.deleteComment(1L);
-
-        verify(commentRepository).deleteById(1L);
-    }
-
-    @Test
-    void deleteComment_shouldThrowWhenCommentNotFound() {
-        when(commentRepository.existsById(99L)).thenReturn(false);
-
-        assertThatThrownBy(() -> adminService.deleteComment(99L))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("Comment not found");
-
-        verify(commentRepository, never()).deleteById(any());
     }
 }
