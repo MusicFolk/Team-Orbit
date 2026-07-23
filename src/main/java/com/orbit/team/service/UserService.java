@@ -36,7 +36,7 @@ public class UserService {
         log.info("Registering new user '{}'", registerRequest.getUsername());
 
         if(userRepository.existsByEmail(registerRequest.getEmail())) {
-            log.warn("Registration failed. Email already exists: {}", registerRequest.getEmail());
+            log.warn("Registration failed. Email already exists.", registerRequest.getEmail());
             throw new DuplicateEmailException("This email is already in use");
         }
         if(userRepository.existsByUsername(registerRequest.getUsername())) {

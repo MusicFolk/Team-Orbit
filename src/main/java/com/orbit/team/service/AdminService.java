@@ -35,8 +35,9 @@ public class AdminService {
 
         user.setActive(false);
 
+        User saved = userRepository.save(user);
         log.info("User {} successfully deactivated", userId);
-        return userRepository.save(user);
+        return saved;
     }
 
     public void deleteUser(Long userId) {
