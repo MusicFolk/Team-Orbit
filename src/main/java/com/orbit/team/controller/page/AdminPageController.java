@@ -5,9 +5,11 @@ import com.orbit.team.entity.Event;
 import com.orbit.team.entity.User;
 import com.orbit.team.security.UserSecurity;
 import com.orbit.team.service.AdminService;
+import com.orbit.team.service.CommentService;
 import com.orbit.team.service.EventService;
 import com.orbit.team.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
@@ -27,6 +29,7 @@ public class AdminPageController {
     private final AdminService adminService;
     private final EventService eventService;
     private final UserService userService;
+    private final CommentService commentService;
 
     @GetMapping("/users")
     public String users(@RequestParam(required = false) String search, Model model) {
@@ -90,8 +93,8 @@ public class AdminPageController {
     }
 
     @DeleteMapping("/comments/{id}")
-    public String deleteComment(@PathVariable Long id) {
-        adminService.deleteComment(id);
+    public String deleteComment(@PathVariable Long id, @AuthenticationPrincipal UserSecurity userSecurity) {
+        commentService.deleteComment(id, userSecurity.getId());
         return "redirect:/admin/comments";
     }
 
