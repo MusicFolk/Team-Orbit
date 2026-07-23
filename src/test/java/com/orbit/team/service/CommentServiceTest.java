@@ -129,15 +129,35 @@ public class CommentServiceTest {
     }
 
     @Test
-    void deleteComment_shouldThrowExceptionWhenUserIsNotAdmin() {
+    void deleteComment_shouldDeleteCommentIfUserOwnsComment() {
         when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+        when(commentRepository.findById(6L)).thenReturn(Optional.of(comment));
 
-        assertThrows(UnauthorizedActionException.class, () -> commentService.deleteComment(6L, 2L));
+        commentService.deleteComment(6L, 2L);
+
+        verify(commentRepository).delete(comment);
+    }
+
+    @Test
+    void deleteComment_shouldThrowExceptionWhenUserDoesNotOwnComment() {
+        User anotherUser = User.builder()
+                .id(10L)
+                .username("anotherUser")
+                .role(Role.USER)
+                .build();
+
+        when(userRepository.findById(10L)).thenReturn(Optional.of(anotherUser));
+        when(commentRepository.findById(6L)).thenReturn(Optional.of(comment));
+
+        assertThrows(UnauthorizedActionException.class,
+                () -> commentService.deleteComment(6L, 10L));
+
         verify(commentRepository, never()).delete(any());
     }
 
     @Test
     void deleteComment_shouldThrowExceptionWhenThereIsNoUser() {
+        when(commentRepository.findById(6L)).thenReturn(Optional.of(comment));
         when(userRepository.findById(2L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> commentService.deleteComment(6L, 2L));
@@ -146,7 +166,6 @@ public class CommentServiceTest {
 
     @Test
     void deleteComment_shouldThrowExceptionWhenThereIsNoComment() {
-        when(userRepository.findById(8L)).thenReturn(Optional.of(admin));
         when(commentRepository.findById(6L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> commentService.deleteComment(6L, 8L));
