@@ -73,12 +73,12 @@ src/main/java/com/orbit/team
 ├── controller/
 │   ├── page/                   # Thymeleaf MVC controllers (session auth)
 │   │   ├── HomePageController
+│   │   ├── AuthPageController
 │   │   ├── EventPageController
 │   │   ├── RsvpPageController
 │   │   ├── CommentPageController
 │   │   └── AdminPageController
-│   └── rest/                   # REST API controllers 
-│       ├── AuthController      # exception: /register only, session based
+│   └── rest/                   # REST API controllers (HTTP Basic auth)
 │       ├── EventController
 │       ├── RsvpController
 │       ├── CommentController
@@ -136,12 +136,7 @@ A `GlobalExceptionHandler` maps domain exceptions to proper HTTP status codes:
 
 ## REST API overview
 
-All endpoints below (except registration) require HTTP Basic authentication. Full interactive documentation is available at `/swagger-ui/index.html` when the app is running.
-
-### Auth
-| Method | Path | Description |
-|---|---|---|
-| POST | `/register` | Register a new account (session/form based, not HTTP Basic — served by a page controller, not the JSON API) |
+All endpoints below require HTTP Basic authentication. Full interactive documentation is available at `/swagger-ui/index.html` when the app is running. (Registration and login are handled by `AuthPageController` via session-based form login, not part of this JSON API — see `/register` and `/login`.)
 
 ### Events
 | Method | Path | Description |
@@ -196,7 +191,7 @@ This starts:
 - `orbit-app`: the Spring Boot app
 
 Once healthy, open:
-- Web app: http://localhost:8080 (redirects to the events dashboard)
+- Web app: http://localhost:8080 (redirects to login page)
 - Swagger UI: http://localhost:8080/swagger-ui/index.html
 
 
