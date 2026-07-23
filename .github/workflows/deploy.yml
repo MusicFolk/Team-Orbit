@@ -2,7 +2,7 @@ name: Deploy to Self-Hosted Runner
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       server_port:
@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   build-and-deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: self-hosted
     env:
       APP_CONTAINER_NAME: acn-bootcamp-app
