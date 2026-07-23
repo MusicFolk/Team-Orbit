@@ -103,7 +103,7 @@ Thymeleaf templates live in `src/main/resources/templates` (events dashboard, ev
 
 ### Data model
 
-![Team Orbit entity relationship diagram](https://i.imgur.com/zObIIEJ.gif)
+![Team Orbit entity relationship diagram](images/schema2-merge.gif)
  
 `users` and `events` are the two parent tables; `rsvp` and `comments` are independent children of both. 
 A user organizes many events, submits many RSVPs, and writes many comments; an event receives many RSVPs and has many comments. `rsvp` also functions as a join table resolving the underlying many-to-many relationship between users and events (a user can RSVP to many events, an event can have many attendees), with a unique constraint on `(user_id, event_id)` capping each user to one RSVP per event.
