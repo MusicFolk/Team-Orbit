@@ -3,11 +3,13 @@ package com.orbit.team.controller.page;
 import com.orbit.team.entity.Comment;
 import com.orbit.team.entity.Event;
 import com.orbit.team.entity.User;
+import com.orbit.team.security.UserSecurity;
 import com.orbit.team.service.AdminService;
 import com.orbit.team.service.EventService;
 import com.orbit.team.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,8 +59,8 @@ public class AdminPageController {
     }
 
     @DeleteMapping("/events/{id}")
-    public String deleteEvent(@PathVariable Long id) {
-        eventService.deleteEventAsAdmin(id);
+    public String deleteEvent(@PathVariable Long id, @AuthenticationPrincipal UserSecurity currentUser) {
+        eventService.deleteEvent(id, currentUser.getId());
         return "redirect:/admin/events";
     }
 
