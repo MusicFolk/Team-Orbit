@@ -1,0 +1,125 @@
+name: Deploy to Self-Hosted Runner
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      server_port:
+        description: 'Application port'
+        required: false
+        default: '3200'
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    env:
+      APP_CONTAINER_NAME: acn-bootcamp-app
+      APP_IMAGE_NAME: acn-bootcamp-app
+      DB_CONTAINER_NAME: acn-bootcamp-db
+      DOCKER_NETWORK: acn-bootcamp-net
+      DB_VOLUME: acn-bootcamp-pgdata
+      POSTGRES_DB: orbit
+      POSTGRES_USER: orbit_user
+      POSTGRES_PASSWORD: orbit_pass
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Resolve settings
+        id: cfg
+        run: |
+          PORT="${{ github.event.inputs.server_port }}"
+          [ -z "$PORT" ] && PORT="3200"
+          echo "port=$PORT" >> "$GITHUB_OUTPUT"
+          echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Check Docker availability
+        run: docker version
+
+      - name: Build application image
+        run: |
+          docker build \
+            -t "$APP_IMAGE_NAME:${{ steps.cfg.outputs.commit }}" \
+            -t "$APP_IMAGE_NAME:latest" \
+            .
+
+      - name: Ensure Docker network
+        run: docker network inspect "$DOCKER_NETWORK" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK"
+
+      - name: Ensure PostgreSQL is running
+        run: |
+          if docker ps --format '{{.Names}}' | grep -qx "$DB_CONTAINER_NAME"; then
+            echo "PostgreSQL already running."
+          else
+            docker rm -f "$DB_CONTAINER_NAME" 2>/dev/null || true
+            docker run -d \
+              --name "$DB_CONTAINER_NAME" \
+              --restart unless-stopped \
+              --network "$DOCKER_NETWORK" \
+              -e POSTGRES_DB="$POSTGRES_DB" \
+              -e POSTGRES_USER="$POSTGRES_USER" \
+              -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+              -v "$DB_VOLUME:/var/lib/postgresql/data" \
+              postgres:16
+            echo "Waiting for PostgreSQL to accept connections..."
+            for i in $(seq 1 30); do
+              if docker exec "$DB_CONTAINER_NAME" pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+                echo "PostgreSQL is ready."; break
+              fi
+              echo "  attempt $i..."; sleep 2
+            done
+          fi
+
+      - name: Stop existing application (if running)
+        continue-on-error: true
+        run: |
+          docker rm -f "$APP_CONTAINER_NAME" || true
+          sleep 2
+
+      - name: Start application container
+        env:
+          SERVER_PORT: ${{ steps.cfg.outputs.port }}
+        run: |
+          docker run -d \
+            --name "$APP_CONTAINER_NAME" \
+            --restart unless-stopped \
+            --network "$DOCKER_NETWORK" \
+            -p "$SERVER_PORT:$SERVER_PORT" \
+            -e SERVER_PORT="$SERVER_PORT" \
+            -e SPRING_DATASOURCE_URL="jdbc:postgresql://$DB_CONTAINER_NAME:5432/$POSTGRES_DB" \
+            -e SPRING_DATASOURCE_USERNAME="$POSTGRES_USER" \
+            -e SPRING_DATASOURCE_PASSWORD="$POSTGRES_PASSWORD" \
+            "$APP_IMAGE_NAME:${{ steps.cfg.outputs.commit }}"
+          echo "Container started on port $SERVER_PORT"
+          docker ps --filter "name=$APP_CONTAINER_NAME"
+
+      - name: Verify deployment
+        run: |
+          for i in $(seq 1 45); do
+            if ! docker ps --format '{{.Names}}' | grep -qx "$APP_CONTAINER_NAME"; then
+              echo "Application container is not running."
+              docker logs "$APP_CONTAINER_NAME" || true
+              exit 1
+            fi
+            if docker logs "$APP_CONTAINER_NAME" 2>&1 | grep -q "Started TeamApplication in"; then
+              echo "Spring Boot started successfully."
+              docker ps --filter "name=$APP_CONTAINER_NAME"
+              exit 0
+            fi
+            echo "Attempt $i: waiting for Spring Boot startup..."
+            sleep 2
+          done
+          echo "Application did not report successful startup."
+          docker logs "$APP_CONTAINER_NAME" || true
+          exit 1
+
+      - name: Display application logs
+        if: always()
+        run: docker logs --tail 60 "$APP_CONTAINER_NAME" || true

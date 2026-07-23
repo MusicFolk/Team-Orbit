@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${event.title} + ' — Orbit'">Orbit — Event</title>
+  <style>
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:#f4f6fb; color:#2c2c34; }
+    .wrap { max-width:900px; margin:0 auto; padding:32px 24px; }
+    .breadcrumb { font-size:12.5px; margin-bottom:10px; }
+    .breadcrumb a { color:#6b6f80; text-decoration:none; }
+    h1 { color:#1E2761; font-size:24px; margin:0 0 16px 0; }
+    .hero { height:160px; border-radius:10px; background:linear-gradient(135deg,#1E2761,#3b4694); margin-bottom:20px; }
+    .grid { display:grid; grid-template-columns:2fr 1fr; gap:24px; }
+    .card { background:#fff; border:1px solid #e1e4ec; border-radius:10px; padding:24px; box-sizing:border-box; }
+    .tag { display:inline-block; font-size:11px; font-weight:600; color:#1E2761; background:#eef3fd; border:1px solid #CADCFC; border-radius:20px; padding:2px 10px; margin-bottom:12px; }
+    .desc { font-size:14px; line-height:1.6; }
+    .meta-list { list-style:none; padding:0; margin:0; }
+    .meta-list li { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #e1e4ec; font-size:13.5px; }
+    .meta-list li:last-child { border-bottom:none; }
+    .meta-list .k { color:#6b6f80; }
+    .meta-list .v { font-weight:600; }
+    .rsvp-group { display:flex; gap:8px; margin-top:16px; }
+    .rsvp-group form { flex:1; }
+    .rsvp-group button { width:100%; padding:10px; border:none; border-radius:6px; font-size:13.5px; font-weight:600; cursor:pointer; }
+    .rsvp-attending { background:#2f8f5b; color:#fff; }
+    .rsvp-maybe { background:#fff4e6; color:#c96a1f; border:1px solid #f2d3a8; }
+    .rsvp-no { background:#fdeceb; color:#c94a4a; border:1px solid #f3c8c4; }
+    .btn-row { margin-top:20px; display:flex; gap:10px; }
+    .btn-secondary { background:#eef3fd; color:#1E2761; border:1px solid #CADCFC; padding:8px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; }
+    .current-rsvp { font-size:12.5px; color:#6b6f80; margin-top:10px; }
+    summary.reveal-btn { cursor:pointer; display:inline-block; background:#eef3fd; color:#1E2761; border:1px solid #CADCFC; padding:8px 14px; border-radius:6px; font-size:13px; font-weight:600; list-style:none; }
+    summary.reveal-btn::-webkit-details-marker { display:none; }
+    .attendee-list { list-style:none; padding:0; margin:12px 0 0 0; }
+    .attendee-list li { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #e1e4ec; font-size:13.5px; }
+    .attendee-list li:last-child { border-bottom:none; }
+    .attendee-status { font-size:11px; font-weight:600; color:#1E2761; }
+    .empty-note { color:#6b6f80; font-size:13px; margin-top:12px; }
+    .comment { padding:12px 0; border-bottom:1px solid #e1e4ec; }
+    .comment:last-of-type { border-bottom:none; }
+    .comment-head { font-size:13px; font-weight:600; }
+    .comment-time { color:#6b6f80; font-weight:400; font-size:12px; margin-left:6px; }
+    .comment-body { font-size:13.5px; margin-top:4px; }
+    .comment-form textarea { width:100%; padding:10px 12px; border:1px solid #e1e4ec; border-radius:6px; font-family:inherit; font-size:14px; box-sizing:border-box; resize:vertical; }
+    .comment-form button { margin-top:10px; background:#1E2761; color:#fff; border:none; border-radius:6px; padding:10px 18px; font-weight:600; font-size:14px; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="breadcrumb"><a th:href="@{/events}">&larr; Back to events</a></div>
+  <h1 th:text="${event.title}">Event Title</h1>
+  <div class="hero"></div>
+
+  <div class="grid">
+    <div class="card">
+      <span class="tag" th:text="${event.category}">Category</span>
+      <p class="desc" th:text="${event.description}">Event description goes here.</p>
+
+      <div class="rsvp-group">
+        <form th:action="@{/events/{id}/rsvp(id=${event.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <input type="hidden" name="status" value="ATTENDING"/>
+          <button type="submit" class="rsvp-attending">Attending</button>
+        </form>
+        <form th:action="@{/events/{id}/rsvp(id=${event.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <input type="hidden" name="status" value="MAYBE"/>
+          <button type="submit" class="rsvp-maybe">Maybe</button>
+        </form>
+        <form th:action="@{/events/{id}/rsvp(id=${event.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <input type="hidden" name="status" value="NO"/>
+          <button type="submit" class="rsvp-no">No</button>
+        </form>
+      </div>
+      <p class="current-rsvp" th:if="${currentRsvpStatus}">
+        Your current RSVP: <strong th:text="${currentRsvpStatus}">ATTENDING</strong>
+      </p>
+    </div>
+
+    <div class="card">
+      <ul class="meta-list">
+        <li><span class="k">Date &amp; Time</span><span class="v"
+                                                        th:text="${event.eventDateTime.toLocalDate()} + ' · ' + ${event.eventDateTime.toLocalTime()}">Date · Time</span></li>
+        <li><span class="k">Location</span><span class="v" th:text="${event.location}">Location</span></li>
+        <li><span class="k">Capacity</span><span class="v"
+                                                 th:text="${(attendeeCount != null ? attendeeCount + ' / ' : '') + event.capacity}">0 / 0</span></li>
+        <li><span class="k">Organizer</span><span class="v" th:text="${event.organizer.fullName}">Organizer</span></li>
+      </ul>
+
+      <div th:if="${isOrganizer}" style="margin-top:20px;">
+        <details>
+          <summary class="reveal-btn">View Attendees (<span th:text="${#lists.size(attendees)}">0</span>)</summary>
+          <ul class="attendee-list" th:if="${not #lists.isEmpty(attendees)}">
+            <li th:each="a : ${attendees}">
+              <span th:text="${a.fullName}">Full Name</span>
+              <span class="attendee-status" th:text="${a.status}">ATTENDING</span>
+            </li>
+          </ul>
+          <p class="empty-note" th:if="${#lists.isEmpty(attendees)}">No responses yet.</p>
+        </details>
+
+        <div class="btn-row">
+          <a class="btn-secondary" th:href="@{/events/{id}/edit(id=${event.id})}">Edit Event</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <details open>
+      <summary class="reveal-btn">Comments (<span th:text="${#lists.size(comments)}">0</span>)</summary>
+      <div style="margin-top:16px;">
+        <p class="empty-note" th:if="${#lists.isEmpty(comments)}">No comments yet. Be the first.</p>
+
+          <div class="comment" th:each="c : ${comments}">
+
+              <div class="comment-head" style="display:flex;justify-content:space-between;align-items:center;">
+                  <div>
+                      <span th:text="${c.username}">Username</span>
+                      <span class="comment-time" th:text="${c.createdAt}">Time</span>
+                  </div>
+
+                  <form th:if="${c.userId == currentUserId}"
+                        th:action="@{/events/{eventId}/comments/{commentId}/delete(eventId=${event.id},commentId=${c.commentId})}"
+                        method="post"
+                        style="margin:0;"
+                        onsubmit="return confirm('Are you sure you want to delete this comment?');">
+
+                      <input type="hidden"
+                             th:name="${_csrf.parameterName}"
+                             th:value="${_csrf.token}"/>
+
+                      <button type="submit"
+                              style="background:#dc3545;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;">
+                          Delete
+                      </button>
+                  </form>
+              </div>
+
+              <div class="comment-body" th:text="${c.content}">
+                  Comment text.
+              </div>
+
+          </div>
+
+          <form class="comment-form"
+                th:action="@{/events/{id}/comments(id=${event.id})}"
+                method="post"
+                style="margin-top:16px;">
+
+              <input type="hidden"
+                     th:name="${_csrf.parameterName}"
+                     th:value="${_csrf.token}"/>
+
+              <textarea name="content"
+                        required
+                        rows="3"
+                        placeholder="Write a comment..."></textarea>
+
+              <button type="submit">Post Comment</button>
+          </form>
+
+      </div>
+    </details>
+</div>
+</div>
+
+</body>
+</html>
