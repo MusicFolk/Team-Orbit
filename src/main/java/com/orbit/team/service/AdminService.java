@@ -27,44 +27,9 @@ public class AdminService {
         return userRepository.findAll();
     }
 
-    public User deactivateUser(Long userId) {
-        log.info("Admin deactivating user {}", userId);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
-
-        user.setActive(false);
-
-        User saved = userRepository.save(user);
-        log.info("User {} successfully deactivated", userId);
-        return saved;
-    }
-
-    public void deleteUser(Long userId) {
-        log.info("Admin deleting user {}", userId);
-
-        if (!userRepository.existsById(userId)) {
-            log.warn("Cannot delete user {}. User not found", userId);
-            throw new ResourceNotFoundException("User not found: " + userId);
-        }
-        userRepository.deleteById(userId);
-        log.info("User {} successfully deleted", userId);
-    }
-
     public List<Event> getAllEvents() {
         log.info("Admin fetching all events");
         return eventRepository.findAll();
-    }
-
-    public void deleteEvent(Long eventId) {
-        log.info("Admin deleting event {}", eventId);
-
-        if (!eventRepository.existsById(eventId)) {
-            log.warn("Cannot delete event {}. Event not found", eventId);
-            throw new ResourceNotFoundException("Event not found: " + eventId);
-        }
-        eventRepository.deleteById(eventId);
-        log.info("Event {} successfully deleted", eventId);
     }
 
     public List<Comment> getAllComments() {

@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -58,50 +57,6 @@ public class AdminServiceTest {
         assertThat(result).hasSize(1).containsExactly(user);
     }
 
-    // deactivate a user
-    @Test
-    void deactivateUser_shouldSetActiveFalseAndSave() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        User result = adminService.deactivateUser(1L);
-
-        assertThat(result.isActive()).isFalse();
-        verify(userRepository).save(user);
-    }
-
-    @Test
-    void deactivateUser_shouldThrowWhenUserNotFound() {
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> adminService.deactivateUser(99L))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("User not found");
-
-        verify(userRepository, never()).save(any());
-    }
-
-    // delete a user
-    @Test
-    void deleteUser_shouldDeleteWhenExists() {
-        when(userRepository.existsById(1L)).thenReturn(true);
-
-        adminService.deleteUser(1L);
-
-        verify(userRepository).deleteById(1L);
-    }
-
-    @Test
-    void deleteUser_shouldThrowWhenUserNotFound() {
-        when(userRepository.existsById(99L)).thenReturn(false);
-
-        assertThatThrownBy(() -> adminService.deleteUser(99L))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("User not found");
-
-        verify(userRepository, never()).deleteById(any());
-    }
-
     // get all events
     @Test
     void getAllEvents_shouldReturnList() {
@@ -111,28 +66,6 @@ public class AdminServiceTest {
 
         assertThat(result).hasSize(1).containsExactly(event);
     }
-
-    // delete an event
-    @Test
-    void deleteEvent_shouldDeleteWhenExists() {
-        when(eventRepository.existsById(1L)).thenReturn(true);
-
-        adminService.deleteEvent(1L);
-
-        verify(eventRepository).deleteById(1L);
-    }
-
-    @Test
-    void deleteEvent_shouldThrowWhenEventNotFound() {
-        when(eventRepository.existsById(99L)).thenReturn(false);
-
-        assertThatThrownBy(() -> adminService.deleteEvent(99L))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("Event not found");
-
-        verify(eventRepository, never()).deleteById(any());
-    }
-
 
     // fetch all comments
     @Test
