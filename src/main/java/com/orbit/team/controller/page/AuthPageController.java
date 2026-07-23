@@ -1,4 +1,4 @@
-package com.orbit.team.controller.rest;
+package com.orbit.team.controller.page;
 
 import com.orbit.team.dto.request.RegisterRequest;
 import com.orbit.team.exception.DuplicateEmailException;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthPageController {
 
     private final UserService userService;
 
