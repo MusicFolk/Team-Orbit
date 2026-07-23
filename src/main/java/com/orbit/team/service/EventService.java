@@ -2,6 +2,7 @@ package com.orbit.team.service;
 
 import com.orbit.team.dto.request.EventRequest;
 import com.orbit.team.entity.Event;
+import com.orbit.team.entity.Role;
 import com.orbit.team.entity.User;
 import com.orbit.team.exception.ResourceNotFoundException;
 import com.orbit.team.exception.UnauthorizedActionException;
@@ -89,9 +90,15 @@ public class EventService {
 
         Event event = getEventById(id);
 
-        if (!event.getOrganizer().getId().equals(userId)) {
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("Cannot delete event. User {} not found", userId);
+                    return new ResourceNotFoundException("User not found: " + userId);
+                });
+
+        if (!event.getOrganizer().getId().equals(userId) && currentUser.getRole() != Role.ADMIN) {
             log.warn("User {} attempted to delete event {} without permission", userId, id);
-            throw new UnauthorizedActionException("Only the organizer can delete this event");
+            throw new UnauthorizedActionException("Only the organizer or an admin can delete this event");
         }
 
         rsvpRepository.deleteAll(rsvpRepository.findByEvent(event));
@@ -99,19 +106,6 @@ public class EventService {
         eventRepository.delete(event);
 
         log.info("Event {} deleted successfully by user {}", id, userId);
-    }
-
-    @Transactional
-    public void deleteEventAsAdmin(Long id) {
-        log.info("Admin deleting event {}", id);
-
-        Event event = getEventById(id);
-
-        rsvpRepository.deleteAll(rsvpRepository.findByEvent(event));
-        commentRepository.deleteAll(commentRepository.findByEventOrderByCreatedAtAsc(event));
-        eventRepository.delete(event);
-
-        log.info("Event {} deleted successfully by admin", id);
     }
 
     public List<Event> getAllEvents() {

@@ -1,5 +1,6 @@
 package com.orbit.team.controller.rest;
 
+import com.orbit.team.security.UserSecurity;
 import com.orbit.team.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,7 +27,7 @@ public class AdminEventController {
     @ApiResponse(responseCode = "404", description = "Event not found")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteEvent(@PathVariable Long id) {
-        eventService.deleteEventAsAdmin(id);
+    public void deleteEvent(@PathVariable Long id, @AuthenticationPrincipal UserSecurity userSecurity) {
+        eventService.deleteEvent(id, userSecurity.getId());
     }
 }
