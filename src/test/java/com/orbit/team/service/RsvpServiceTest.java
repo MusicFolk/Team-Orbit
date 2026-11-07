@@ -13,6 +13,7 @@ import com.orbit.team.repository.EventRepository;
 import com.orbit.team.repository.RsvpRepository;
 import com.orbit.team.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -233,6 +234,24 @@ public class RsvpServiceTest {
         assertThat(result).isNotNull();
         verify(rsvpRepository, never()).countByEvent_IdAndStatus(any(), any());
         verify(rsvpRepository).save(rsvp);
+    }
+
+    @Test
+    void updateRsvp_shouldUpdateToAttendingWhenCapacityAvailable() {
+        RSVP maybeRsvp = RSVP.builder().user(user).event(event).status(RsvpStatus.MAYBE).build();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        when(rsvpRepository.findByUserAndEvent(user, event)).thenReturn(Optional.of(maybeRsvp));
+        when(rsvpRepository.countByEvent_IdAndStatus(1L, RsvpStatus.ATTENDING)).thenReturn(9L);
+        when(rsvpRepository.save(any(RSVP.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        AttendeeResponse result = rsvpService.updateRsvp(1L, 1L, RsvpStatus.ATTENDING);
+
+        assertThat(result.getStatus()).isEqualTo(RsvpStatus.ATTENDING);
+        assertThat(maybeRsvp.getStatus()).isEqualTo(RsvpStatus.ATTENDING);
+        verify(rsvpRepository).countByEvent_IdAndStatus(1L, RsvpStatus.ATTENDING);
+        verify(rsvpRepository).save(maybeRsvp);
     }
 
     // cancelRsvp
