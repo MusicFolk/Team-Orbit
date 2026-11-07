@@ -32,16 +32,8 @@ public class RsvpService {
     public AttendeeResponse createRsvp(Long userId, Long eventId, RsvpStatus status) {
         log.info("User {} creating RSVP for event {} with status {}", userId, eventId, status);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.warn("Cannot create RSVP. User {} not found", userId);
-                    return new ResourceNotFoundException("User not found: " + userId);
-                });
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> {
-                    log.warn("Cannot create RSVP. Event {} not found", eventId);
-                    return new ResourceNotFoundException("Event not found: " + eventId);
-                });
+        User user = findUserOrThrow(userId, "create RSVP");
+        Event event = findEventOrThrow(eventId, "create RSVP");
 
         if (rsvpRepository.findByUserAndEvent(user, event).isPresent()) {
             log.warn("User {} already has an RSVP for event {}", userId, eventId);
@@ -49,10 +41,7 @@ public class RsvpService {
         }
 
         if (status == RsvpStatus.ATTENDING) {
-            long attendingCount = rsvpRepository.countByEvent_IdAndStatus(eventId, RsvpStatus.ATTENDING);
-            if (attendingCount >= event.getCapacity()) {
-                throw new EventFullException("Event has reached its attendee capacity");
-            }
+            ensureCapacityAvailable(event);
         }
 
         RSVP rsvp = RSVP.builder()
@@ -72,16 +61,8 @@ public class RsvpService {
     public AttendeeResponse updateRsvp(Long userId, Long eventId, RsvpStatus status) {
         log.info("User {} updating RSVP for event {} to {}", userId, eventId, status);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.warn("Cannot update RSVP. User {} not found", userId);
-                    return new ResourceNotFoundException("User not found: " + userId);
-                });
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> {
-                    log.warn("Cannot update RSVP. Event {} not found", eventId);
-                    return new ResourceNotFoundException("Event not found: " + eventId);
-                });
+        User user = findUserOrThrow(userId, "update RSVP");
+        Event event = findEventOrThrow(eventId, "update RSVP");
 
         RSVP rsvp = rsvpRepository.findByUserAndEvent(user, event)
                 .orElseThrow(() -> {
@@ -90,10 +71,7 @@ public class RsvpService {
                 });
 
         if (status == RsvpStatus.ATTENDING && rsvp.getStatus() != RsvpStatus.ATTENDING) {
-            long attendingCount = rsvpRepository.countByEvent_IdAndStatus(eventId, RsvpStatus.ATTENDING);
-            if (attendingCount >= event.getCapacity()) {
-                throw new EventFullException("Event has reached its attendee capacity");
-            }
+            ensureCapacityAvailable(event);
         }
 
         rsvp.setStatus(status);
@@ -109,16 +87,8 @@ public class RsvpService {
     public void cancelRsvp(Long userId, Long eventId) {
         log.info("User {} cancelling RSVP for event {}", userId, eventId);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.warn("Cannot cancel RSVP. User {} not found", userId);
-                    return new ResourceNotFoundException("User not found: " + userId);
-                });
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> {
-                    log.warn("Cannot cancel RSVP. Event {} not found", eventId);
-                    return new ResourceNotFoundException("Event not found: "+ eventId);
-                });
+        User user = findUserOrThrow(userId, "cancel RSVP");
+        Event event = findEventOrThrow(eventId, "cancel RSVP");
 
         rsvpRepository.findByUserAndEvent(user, event)
                 .ifPresent(rsvpRepository::delete);
@@ -127,11 +97,7 @@ public class RsvpService {
     public List<AttendeeResponse> getRsvpsForEvent(Long eventId, Long userId) {
         log.info("User {} viewing attendees for event {}", userId, eventId);
 
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> {
-                    log.warn("Cannot get attendees. Event {} not found", eventId);
-                    return new ResourceNotFoundException("Event not found: " + eventId);
-                });
+        Event event = findEventOrThrow(eventId, "get attendees");
 
         if (!event.getOrganizer().getId().equals(userId)) {
             log.warn("User {} attempted to view attendees of event {} without permission", userId, eventId);
@@ -141,6 +107,29 @@ public class RsvpService {
         return rsvpRepository.findByEvent_Id(eventId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    private User findUserOrThrow(Long userId, String action) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("Cannot {}. User {} not found", action, userId);
+                    return new ResourceNotFoundException("User not found: " + userId);
+                });
+    }
+
+    private Event findEventOrThrow(Long eventId, String action) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> {
+                    log.warn("Cannot {}. Event {} not found", action, eventId);
+                    return new ResourceNotFoundException("Event not found: " + eventId);
+                });
+    }
+
+    private void ensureCapacityAvailable(Event event) {
+        long attendingCount = rsvpRepository.countByEvent_IdAndStatus(event.getId(), RsvpStatus.ATTENDING);
+        if (attendingCount >= event.getCapacity()) {
+            throw new EventFullException("Event has reached its attendee capacity");
+        }
     }
 
     private AttendeeResponse toResponse(RSVP rsvp) {
