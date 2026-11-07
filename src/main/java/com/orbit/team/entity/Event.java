@@ -65,4 +65,8 @@ public class Event {
     private void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public boolean isOrganizedBy(Long userId) {
+        return organizer.getId().equals(userId);
+    }
 }

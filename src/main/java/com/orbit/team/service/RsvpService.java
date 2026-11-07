@@ -99,7 +99,7 @@ public class RsvpService {
 
         Event event = findEventOrThrow(eventId, "get attendees");
 
-        if (!event.getOrganizer().getId().equals(userId)) {
+        if (!event.isOrganizedBy(userId)) {
             log.warn("User {} attempted to view attendees of event {} without permission", userId, eventId);
             throw new UnauthorizedActionException("Only the organizer can view the attendee list");
         }

@@ -115,7 +115,7 @@ public class EventPageController {
                               Model model) {
 
         Event event = eventService.getEventById(id);
-        boolean isOrganizer = event.getOrganizer().getId().equals(currentUser.getId());
+        boolean isOrganizer = event.isOrganizedBy(currentUser.getId());
 
         model.addAttribute("event", event);
         model.addAttribute("isOrganizer", isOrganizer);
@@ -149,9 +149,7 @@ public class EventPageController {
 
         Event event = eventService.getEventById(id);
 
-        if (!event.getOrganizer()
-                .getId()
-                .equals(currentUser.getId())) {
+        if (!event.isOrganizedBy(currentUser.getId())) {
             throw new UnauthorizedActionException("Only the organizer can edit this event");
         }
 

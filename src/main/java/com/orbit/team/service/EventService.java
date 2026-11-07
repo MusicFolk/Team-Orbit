@@ -66,7 +66,7 @@ public class EventService {
         log.info("User {} updating event {}", userId, id);
         Event event = getEventById(id);
 
-        if (!event.getOrganizer().getId().equals(userId)) {
+        if (!event.isOrganizedBy(userId)) {
             log.warn("User {} attempted to update event {} without permission", userId, id);
             throw new UnauthorizedActionException("Only the organizer can edit this event");
         }
@@ -96,7 +96,7 @@ public class EventService {
                     return new ResourceNotFoundException("User not found: " + userId);
                 });
 
-        if (!event.getOrganizer().getId().equals(userId) && currentUser.getRole() != Role.ADMIN) {
+        if (!event.isOrganizedBy(userId) && currentUser.getRole() != Role.ADMIN) {
             log.warn("User {} attempted to delete event {} without permission", userId, id);
             throw new UnauthorizedActionException("Only the organizer or an admin can delete this event");
         }
