@@ -286,6 +286,18 @@ public class RsvpServiceTest {
                 .hasMessageContaining("User not found");
     }
 
+    @Test
+    void cancelRsvp_shouldThrowWhenEventNotFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(eventRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> rsvpService.cancelRsvp(1L, 99L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Event not found");
+
+        verify(rsvpRepository, never()).delete(any());
+    }
+
     // getRsvpsForEvent
     @Test
     void getRsvpsForEvent_shouldReturnListWhenOrganizer() {
